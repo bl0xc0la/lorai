@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoraAI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-mode">
+    <div class="glass-bg-blur"></div>
+    <div class="app-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <div class="hourglass-logo"></div>
+                    <h2>Lora AI</h2>
+                </div>
+                <button class="new-chat-btn" id="newChatBtn">+ New Session</button>
+            </div>
+            
+            <div class="system-prompt-panel">
+                <label>SYSTEM PROMPT</label>
+                <textarea id="systemPromptInput" placeholder="Customize Lora's behavior"></textarea>
+            </div>
+
+            <div class="history-list" id="historyList"></div>
+            
+            <div class="sidebar-footer">
+                <button id="themeToggle" class="footer-action-btn">Switch Theme</button>
+            </div>
+        </aside>
+        
+        <main class="chat-viewport">
+            <header class="chat-header">
+                <div class="current-model-tag">Status:<span> Active</span></div>
+            </header>
+            
+            <div class="messages-container" id="messagesContainer">
+                <div class="message assistant-msg">
+                    <div class="avatar">L</div>
+                    <div class="msg-content">Hello, how can I assist you today?</div>
+                </div>
+            </div>
+            
+            <footer class="input-area-container">
+                <div class="image-preview-dock" id="imagePreviewDock" style="display: none;">
+                    <img id="previewImg" src="" alt="Upload Preview">
+                    <button type="button" class="remove-img-btn" onclick="clearSelectedImage()">✕</button>
+                </div>
+
+                <form id="chatForm" class="chat-form-wrapper">
+                    <input type="file" id="mediaUploadInput" accept="image/*" style="display: none;">
+                    
+                    <button type="button" class="tool-attach-btn" onclick="document.getElementById('mediaUploadInput').click()">
+                        📎
+                    </button>
+                    
+                    <input type="text" id="userInput" placeholder="Ask Lora anything" autocomplete="off" required />
+                    
+                    <button type="submit" id="sendBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
+                </form>
+            </footer>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
