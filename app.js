@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000"; // Changed from API_BASE_URL to API_URL
+const API_URL = "http://localhost:8000"; // Updated to port 8000!
 const chatForm = document.getElementById("chatForm");
 const userInput = document.getElementById("userInput");
 const messagesContainer = document.getElementById("messagesContainer");
