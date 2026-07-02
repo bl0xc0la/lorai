@@ -1,50 +1,67 @@
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import List
+// app.js - Unified Frontend Logic for Lora AI
 
-app = FastAPI()
+// Update this to match your local server port and endpoint exactly
+const API_URL = "http://localhost:8000/chat";
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const query = input.value.trim();
+    if (!query) return;
 
-# THIS IS THE SINGLE FILE containing your HTML/CSS/JS
-@app.get("/", response_class=HTMLResponse)
-def get_ui():
-    return """
-    <html>
-    <head><title>Lora Core</title></head>
-    <body style="background:#0b0f19; color:white;">
-        <div id="app">
-            <input type="text" id="userInput" placeholder="Ask Lora...">
-            <button onclick="sendMessage()">Send</button>
-            <div id="response"></div>
-        </div>
-        <script>
-            async function sendMessage() {
-                const query = document.getElementById("userInput").value;
-                // Sending to the root "/" which matches our @app.post("/") below
-                const res = await fetch("/", {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({query: query})
-                });
-                const data = await res.json();
-                document.getElementById("response").innerText = data.reply;
+    const chatBox = document.getElementById("chatBox");
+
+    // 1. Append User Message to UI
+    const userDiv = document.createElement("div");
+    userDiv.className = "message user";
+    userDiv.innerText = query;
+    chatBox.appendChild(userDiv);
+    
+    // Clear input and scroll down
+    input.value = "";
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    try {
+        // 2. Send request to the local backend engine
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: query })
+        });
+
+        if (!response.ok) throw new Error("Server returned an error status");
+        
+        const data = await response.json();
+        
+        // 3. Append AI Response to UI
+        const loraDiv = document.createElement("div");
+        loraDiv.className = "message lora";
+        loraDiv.innerText = data.reply;
+        chatBox.appendChild(loraDiv);
+
+    } catch (err) {
+        // 4. Handle connection dropouts gracefully
+        console.error("Connection error:", err);
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "message lora";
+        errorDiv.style.color = "#ef4444";
+        errorDiv.innerText = "Failed to connect to Lora server core engine.";
+        chatBox.appendChild(errorDiv);
+    }
+    
+    // Final scroll adjustment
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Allow pressing 'Enter' inside the input box to send the message
+document.addEventListener("DOMContentLoaded", () => {
+    const userInput = document.getElementById("userInput");
+    if (userInput) {
+        userInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                sendMessage();
             }
-        </script>
-    </body>
-    </html>
-    """
-
-# THIS HANDLES THE POST REQUEST AT THE ROOT "/"
-@app.post("/")
-async def chat_endpoint(data: dict):
-    user_query = data.get("query")
-    # This is where your AI magic happens
-    return {"reply": f"Lora received: {user_query}"}
+        });
+    }
+});
