@@ -1,169 +1,50 @@
-// 1. Pointing exactly to your local running Uvicorn server path
-const API_URL = "http://localhost:8000/"; 
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import List
 
-const chatForm = document.getElementById("chatForm");
-const userInput = document.getElementById("userInput");
-const messagesContainer = document.getElementById("messagesContainer");
-const themeToggle = document.getElementById("themeToggle");
-const newChatBtn = document.getElementById("newChatBtn");
-const historyList = document.getElementById("historyList");
-const mediaUploadInput = document.getElementById("mediaUploadInput");
-const imagePreviewDock = document.getElementById("imagePreviewDock");
-const previewImg = document.getElementById("previewImg");
-const systemPromptInput = document.getElementById("systemPromptInput");
+app = FastAPI()
 
-let conversationHistory = [];
-let attachedImageBase64 = null;
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-// Handle Image Loading Processing File Matrix Loops
-if (mediaUploadInput) {
-    mediaUploadInput.addEventListener("change", function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
+# THIS IS THE SINGLE FILE containing your HTML/CSS/JS
+@app.get("/", response_class=HTMLResponse)
+def get_ui():
+    return """
+    <html>
+    <head><title>Lora Core</title></head>
+    <body style="background:#0b0f19; color:white;">
+        <div id="app">
+            <input type="text" id="userInput" placeholder="Ask Lora...">
+            <button onclick="sendMessage()">Send</button>
+            <div id="response"></div>
+        </div>
+        <script>
+            async function sendMessage() {
+                const query = document.getElementById("userInput").value;
+                // Sending to the root "/" which matches our @app.post("/") below
+                const res = await fetch("/", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({query: query})
+                });
+                const data = await res.json();
+                document.getElementById("response").innerText = data.reply;
+            }
+        </script>
+    </body>
+    </html>
+    """
 
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            attachedImageBase64 = event.target.result;
-            if (previewImg) previewImg.src = attachedImageBase64;
-            if (imagePreviewDock) imagePreviewDock.style.display = "flex";
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-function clearSelectedImage() {
-    attachedImageBase64 = null;
-    if (mediaUploadInput) mediaUploadInput.value = "";
-    if (imagePreviewDock) imagePreviewDock.style.display = "none";
-}
-
-if (themeToggle) {
-    themeToggle.addEventListener("click", () => {
-        document.body.classList.toggle("light-mode");
-        document.body.classList.toggle("dark-mode");
-    });
-}
-
-if (newChatBtn) {
-    newChatBtn.addEventListener("click", () => {
-        conversationHistory = [];
-        messagesContainer.innerHTML = `
-            <div class="message assistant-msg">
-                <div class="avatar">L</div>
-                <div class="msg-content">New session initialized</div>
-            </div>`;
-    });
-}
-
-function appendMessagePlaceholder(isUser, imageSrc = null) {
-    const msgDiv = document.createElement("div");
-    msgDiv.classList.add("message", isUser ? "user-msg" : "assistant-msg");
-    
-    const avatar = document.createElement("div");
-    avatar.classList.add("avatar");
-    avatar.textContent = isUser ? "C" : "L";
-    
-    const content = document.createElement("div");
-    content.classList.add("msg-content");
-    
-    if (imageSrc) {
-        const imgElement = document.createElement("img");
-        imgElement.src = imageSrc;
-        imgElement.style.maxWidth = "200px";
-        imgElement.style.borderRadius = "8px";
-        imgElement.style.marginBottom = "8px";
-        imgElement.style.display = "block";
-        content.appendChild(imgElement);
-    }
-    
-    msgDiv.appendChild(avatar);
-    msgDiv.appendChild(content);
-    messagesContainer.appendChild(msgDiv);
-    
-    return content;
-}
-
-window.copyToClipboard = (button) => {
-    const codeBlock = button.parentElement.nextElementSibling.querySelector("code");
-    navigator.clipboard.writeText(codeBlock.textContent).then(() => {
-        button.textContent = "Copied! ✓";
-        setTimeout(() => button.textContent = "Copy", 2000);
-    });
-};
-
-function parseMarkdown(text) {
-    const parts = text.split(/(```[\s\S]*?```)/g);
-    return parts.map(part => {
-        if (part.startsWith("```") && part.endsWith("```")) {
-            const lines = part.split("\n");
-            const language = lines[0].replace("```", "").trim() || "code";
-            const codeContent = lines.slice(1, -1).join("\n");
-            return `
-                <div class="code-container-block">
-                    <div class="code-header-row">
-                        <span class="code-lang-tag">${language}</span>
-                        <button class="code-copy-btn" onclick="copyToClipboard(this)">Copy</button>
-                    </div>
-                    <pre class="code-pre-element"><code>${escapeHTML(codeContent)}</code></pre>
-                </div>`;
-        }
-        return part.replace(/\n/g, "<br>");
-    }).join("");
-}
-
-function escapeHTML(str) {
-    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-chatForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const query = userInput.value.trim();
-    if (!query && !attachedImageBase64) return;
-    
-    userInput.value = "";
-    
-    const currentImg = attachedImageBase64;
-    clearSelectedImage();
-
-    conversationHistory.push({ role: "user", content: query, image_data: currentImg });
-    
-    const userContentNode = appendMessagePlaceholder(true, currentImg);
-    const textSpan = document.createElement("span");
-    textSpan.textContent = query;
-    userContentNode.appendChild(textSpan);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-    const assistantContentNode = appendMessagePlaceholder(false);
-    assistantContentNode.textContent = "●";
-
-    try {
-        // 2. Fetch using the correct matching API_URL variable name
-        const response = await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                history: conversationHistory,
-                custom_system_prompt: systemPromptInput ? systemPromptInput.value.trim() : null
-            })
-        });
-
-        if (!response.ok) throw new Error();
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let accumulatedText = "";
-
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            accumulatedText += decoder.decode(value, { stream: true });
-            assistantContentNode.innerHTML = parseMarkdown(accumulatedText);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        conversationHistory.push({ role: "assistant", content: accumulatedText });
-
-    } catch (err) {
-        assistantContentNode.innerHTML = `<span style="color: #ef4444;">Failed to connect to Lora server core engine.</span>`;
-    }
-});
+# THIS HANDLES THE POST REQUEST AT THE ROOT "/"
+@app.post("/")
+async def chat_endpoint(data: dict):
+    user_query = data.get("query")
+    # This is where your AI magic happens
+    return {"reply": f"Lora received: {user_query}"}
