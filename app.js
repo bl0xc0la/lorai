@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:8000"; // Updated to port 8000!
+// 1. Pointing exactly to your local running Uvicorn server path
+const API_URL = "http://localhost:8000/"; 
+
 const chatForm = document.getElementById("chatForm");
 const userInput = document.getElementById("userInput");
 const messagesContainer = document.getElementById("messagesContainer");
@@ -14,38 +16,44 @@ let conversationHistory = [];
 let attachedImageBase64 = null;
 
 // Handle Image Loading Processing File Matrix Loops
-mediaUploadInput.addEventListener("change", function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+if (mediaUploadInput) {
+    mediaUploadInput.addEventListener("change", function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        attachedImageBase64 = event.target.result;
-        previewImg.src = attachedImageBase64;
-        imagePreviewDock.style.display = "flex";
-    };
-    reader.readAsDataURL(file);
-});
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            attachedImageBase64 = event.target.result;
+            if (previewImg) previewImg.src = attachedImageBase64;
+            if (imagePreviewDock) imagePreviewDock.style.display = "flex";
+        };
+        reader.readAsDataURL(file);
+    });
+}
 
 function clearSelectedImage() {
     attachedImageBase64 = null;
-    mediaUploadInput.value = "";
-    imagePreviewDock.style.display = "none";
+    if (mediaUploadInput) mediaUploadInput.value = "";
+    if (imagePreviewDock) imagePreviewDock.style.display = "none";
 }
 
-themeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("light-mode");
-    document.body.classList.toggle("dark-mode");
-});
+if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("light-mode");
+        document.body.classList.toggle("dark-mode");
+    });
+}
 
-newChatBtn.addEventListener("click", () => {
-    conversationHistory = [];
-    messagesContainer.innerHTML = `
-        <div class="message assistant-msg">
-            <div class="avatar">L</div>
-            <div class="msg-content">New session initialized</div>
-        </div>`;
-});
+if (newChatBtn) {
+    newChatBtn.addEventListener("click", () => {
+        conversationHistory = [];
+        messagesContainer.innerHTML = `
+            <div class="message assistant-msg">
+                <div class="avatar">L</div>
+                <div class="msg-content">New session initialized</div>
+            </div>`;
+    });
+}
 
 function appendMessagePlaceholder(isUser, imageSrc = null) {
     const msgDiv = document.createElement("div");
@@ -114,7 +122,6 @@ chatForm.addEventListener("submit", async (e) => {
     
     userInput.value = "";
     
-    // Save state before clearing dock inputs
     const currentImg = attachedImageBase64;
     clearSelectedImage();
 
@@ -130,12 +137,13 @@ chatForm.addEventListener("submit", async (e) => {
     assistantContentNode.textContent = "●";
 
     try {
+        // 2. Fetch using the correct matching API_URL variable name
         const response = await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 history: conversationHistory,
-                custom_system_prompt: systemPromptInput.value.trim() || null
+                custom_system_prompt: systemPromptInput ? systemPromptInput.value.trim() : null
             })
         });
 
