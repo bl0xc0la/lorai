@@ -5,144 +5,248 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lora AI</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: monospace; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
         
         body { 
-            background: #020402; 
-            color: #00ff66; 
-            padding: 20px; 
+            background: #000000; 
+            color: #ffffff; 
             display: flex; 
-            justify-content: center; 
-            align-items: center; 
             height: 100vh;
             overflow: hidden;
         }
-        
-        /* Rigid Terminal UI Layout with Glow Accents */
-        .chat-box { 
-            width: 100%; max-width: 950px; height: 90vh;
-            background: #050a05; 
-            border: 2px solid #00ff66; 
+
+        /* Sidebar Layout */
+        .sidebar {
+            width: 260px;
+            background: #000000;
+            border-right: 1px solid #222222;
+            display: flex;
+            flex-direction: column;
             padding: 20px;
-            display: flex; flex-direction: column;
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.2), inset 0 0 15px rgba(0, 255, 102, 0.1);
         }
 
-        .chat-header { 
-            padding-bottom: 12px; 
-            border-bottom: 2px dashed #00ff66; 
-            margin-bottom: 15px; 
-            display: flex; justify-content: space-between; font-weight: bold;
-            text-shadow: 0 0 8px rgba(0, 255, 102, 0.6);
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
         }
-        
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .new-session-btn {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .new-session-btn:hover {
+            background: #cccccc;
+        }
+
+        .history-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #666666;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            list-style: none;
+        }
+
+        .history-item {
+            padding: 10px;
+            border: 1px solid #222222;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #aaaaaa;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-item:hover {
+            background: #111111;
+            color: #ffffff;
+            border-color: #444444;
+        }
+
+        /* Main Chat Container */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #000000;
+        }
+
         .chat-messages { 
             flex: 1; 
-            border: 1px solid #00ff66; 
-            background: #000200; 
-            padding: 20px; 
-            overflow-y: scroll; 
-            display: flex; flex-direction: column; gap: 14px;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+            padding: 40px 20px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 24px;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
         }
 
-        /* Message Elements with Distinctive Neon Glows */
         .message { 
-            padding: 12px; 
+            padding: 16px; 
             max-width: 85%; 
-            word-break: break-all; 
             line-height: 1.5;
-            background: #030703;
+            font-size: 0.95rem;
         }
         
         .user { 
             align-self: flex-end; 
+            background: #111111;
             color: #ffffff; 
-            border: 1px solid #ffffff; 
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+            border: 1px solid #333333; 
         }
         
         .lora { 
             align-self: flex-start; 
-            color: #00ff66; 
-            border: 1px solid #00ff66; 
-            box-shadow: 0 0 8px rgba(0, 255, 102, 0.3);
+            background: #000000;
+            color: #ffffff; 
+            border: 1px solid #222222;
         }
         
-        .chat-input-area { margin-top: 15px; display: flex; gap: 12px; }
+        .chat-input-area { 
+            padding: 20px; 
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto 20px auto;
+        }
 
-        /* Input Controls with Focus Glows */
-        input { 
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            border: 1px solid #333333;
+            background: #000000;
+            padding: 8px 16px;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: #666666;
+        }
+
+        /* Custom File Upload Styling */
+        .upload-label {
+            cursor: pointer;
+            padding: 8px;
+            color: #888888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+
+        .upload-label:hover {
+            color: #ffffff;
+        }
+
+        #fileUpload {
+            display: none;
+        }
+
+        input[type="text"] { 
             flex: 1; 
-            background: #000000; 
-            border: 1px solid #00ff66; 
-            padding: 14px; 
-            color: #00ff66; 
-            font-family: monospace; 
-            font-size: 1rem;
-            transition: box-shadow 0.2s, border-color 0.2s;
-        }
-        
-        input:focus { 
-            background: #020502; 
-            outline: none; 
-            border-color: #ffffff;
-            box-shadow: 0 0 12px rgba(0, 255, 102, 0.5);
-        }
-        
-        button { 
-            background: #00ff66; 
-            color: #000000; 
+            background: transparent; 
             border: none; 
-            padding: 0 30px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            font-family: monospace; 
-            text-transform: uppercase; 
+            padding: 10px; 
+            color: #ffffff; 
             font-size: 1rem;
-            box-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
-            transition: all 0.2s;
+            outline: none;
         }
         
-        button:hover { 
+        .send-btn { 
+            background: transparent; 
+            color: #ffffff; 
+            border: 1px solid #444444; 
+            padding: 8px 20px; 
+            font-weight: 600; 
+            cursor: pointer; 
+        }
+        
+        .send-btn:hover { 
             background: #ffffff; 
             color: #000000; 
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+            border-color: #ffffff;
         }
-        
-        .status-indicator { display: flex; align-items: center; gap: 6px; }
-        .blink-dot { width: 8px; height: 8px; background: #00ff66; border-radius: 50%; animation: pulse 1.5s infinite; box-shadow: 0 0 8px #00ff66; }
-        
-        @keyframes pulse { 0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.2; } }
-        
-        .chat-messages::-webkit-scrollbar { width: 8px; }
-        .chat-messages::-webkit-scrollbar-track { background: #000200; }
-        .chat-messages::-webkit-scrollbar-thumb { background: #00ff66; border: 1px solid #050a05; }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000000; }
+        ::-webkit-scrollbar-thumb { background: #333333; }
+        ::-webkit-scrollbar-thumb:hover { background: #555555; }
     </style>
 </head>
 <body>
 
-    <div class="chat-box">
-        <div class="chat-header">
-            <div>LORA AI</div>
-            <div class="status-indicator">
-                <div class="blink-dot"></div>
-                <span>CONNECTED</span>
-            </div>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">LORA AI</div>
+            <button class="new-session-btn" onclick="startNewSession()">New</button>
         </div>
         
+        <div class="history-title">Chat History</div>
+        <ul class="history-list" id="historyList">
+            <li class="history-item" onclick="loadHistoryItem(this)">Example previous chat topic...</li>
+            <li class="history-item" onclick="loadHistoryItem(this)">Python script debug logs</li>
+            <li class="history-item" onclick="loadHistoryItem(this)">UI adjustment settings</li>
+        </ul>
+    </div>
+
+    <div class="main-content">
         <div class="chat-messages" id="chatBox">
-            <div class="message lora">Lora AI is ready. Type your message below to start chatting.</div>
+            <div class="message lora">Lora AI is ready. Type your message or upload an image to start chatting.</div>
         </div>
         
         <div class="chat-input-area">
-            <input type="text" id="userInput" placeholder="Type a message..." onkeydown="if(event.key === 'Enter') sendTerminalMessage()" autofocus>
-            <button onclick="sendTerminalMessage()">Send</button>
+            <div class="input-wrapper">
+                <label for="fileUpload" class="upload-label" title="Upload Image">📎</label>
+                <input type="file" id="fileUpload" accept="image/*" onchange="handleImageSelection()">
+                
+                <input type="text" id="userInput" placeholder="Type a message..." onkeydown="if(event.key === 'Enter') sendTerminalMessage()" autofocus>
+                <button class="send-btn" onclick="sendTerminalMessage()">Send</button>
+            </div>
         </div>
     </div>
 
     <script>
         const API_URL = "http://localhost:8000/chat";
+
+        function startNewSession() {
+            const chatBox = document.getElementById("chatBox");
+            chatBox.innerHTML = '<div class="message lora">New session started. How can I help you?</div>';
+        }
+
+        function loadHistoryItem(element) {
+            alert(`Loading item: "${element.innerText}"`);
+        }
+
+        function handleImageSelection() {
+            const fileInput = document.getElementById("fileUpload");
+            if(fileInput.files.length > 0) {
+                alert(`Selected image: ${fileInput.files[0].name}`);
+                // Add your image upload/processing logic here if needed
+            }
+        }
 
         async function sendTerminalMessage() {
             const input = document.getElementById("userInput");
@@ -154,7 +258,7 @@
             // Display user message
             const userDiv = document.createElement("div");
             userDiv.className = "message user";
-            userDiv.innerText = `You: ${query}`;
+            userDiv.innerText = query;
             chatBox.appendChild(userDiv);
             
             input.value = "";
@@ -173,14 +277,13 @@
                 
                 const loraDiv = document.createElement("div");
                 loraDiv.className = "message lora";
-                loraDiv.innerText = `Lora: ${data.reply}`;
+                loraDiv.innerText = data.reply;
                 chatBox.appendChild(loraDiv);
             } catch (err) {
                 const errorDiv = document.createElement("div");
                 errorDiv.className = "message lora";
                 errorDiv.style.color = "#ff3333";
                 errorDiv.style.borderColor = "#ff3333";
-                errorDiv.style.boxShadow = "0 0 8px rgba(255, 51, 51, 0.4)";
                 errorDiv.innerText = `Error: Could not connect to the server on port 8000. (${err.message})`;
                 chatBox.appendChild(errorDiv);
             }
