@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lora AI</title>
+    <title>Lora AI Core</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: monospace; }
         body { background: #000000; color: #00ff00; padding: 20px; }
@@ -15,17 +15,6 @@
             padding: 20px;
             margin: 0 auto;
         }
-
-        .hidden { display: none !important; }
-
-        /* Auth Screen Constraints */
-        .auth-container { width: 400px; }
-        .auth-container h2 { margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px dashed #00ff00; padding-bottom: 5px; }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 0.9rem; margin-bottom: 5px; text-transform: uppercase; }
-        
-        .auth-switch-links { margin-top: 15px; font-size: 0.85rem; }
-        .auth-switch-links span { cursor: pointer; text-decoration: underline; margin-right: 15px; }
 
         /* Chat Layout */
         .chat-container { width: 100%; max-width: 800px; height: 85vh; display: flex; flex-direction: column; }
@@ -41,162 +30,30 @@
         input:focus { background: #111111; outline: none; }
         button { background: #00ff00; color: #000000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; font-family: monospace; text-transform: uppercase; }
         button:hover { background: #00cc00; }
-        .guest-btn { background: #333333; color: #00ff00; border: 1px solid #00ff00; }
-        .guest-btn:hover { background: #222222; }
         
-        .error-text { color: #ff0000; font-size: 0.9rem; margin-top: 10px; display: none; text-transform: uppercase; }
         .status-tag { font-size: 0.8rem; background: #222222; padding: 2px 6px; border: 1px solid #00ff00; }
     </style>
 </head>
 <body>
 
-    <div id="loginView" class="panel auth-container">
-        <h2>System Login</h2>
-        <div class="input-group">
-            <label>Username</label>
-            <input type="text" id="loginUser">
-        </div>
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" id="loginPass" onkeydown="if(event.key === 'Enter') executeLogin()">
-        </div>
-        <div id="loginError" class="error-text">Auth Failure: Invalid Credentials.</div>
-        
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <button onclick="executeLogin()">Sign In</button>
-            <button class="guest-btn" onclick="enterAsGuest()">Guest Mode</button>
-        </div>
-        <div class="auth-switch-links">
-            <span onclick="switchAuthView('createView')">[Create Account]</span>
-        </div>
-    </div>
-
-    <div id="createView" class="panel auth-container hidden">
-        <h2>Register Account</h2>
-        <div class="input-group">
-            <label>Desired Username</label>
-            <input type="text" id="createUser">
-        </div>
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" id="createPass">
-        </div>
-        <div id="createError" class="error-text">Registration Failure: Requirements not met.</div>
-        
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <button onclick="executeRegistration()">Register</button>
-            <button class="guest-btn" onclick="enterAsGuest()">Guest Mode</button>
-        </div>
-        <div class="auth-switch-links">
-            <span onclick="switchAuthView('loginView')">[Back to Login]</span>
-        </div>
-    </div>
-
-    <div id="chatView" class="panel chat-container hidden">
+    <div class="panel chat-container">
         <div class="chat-header">
-            <div>NODE SYSTEM ID: <span id="userSessionTag">UNKNOWN</span></div>
+            <div>NODE SYSTEM ID: ROOT_USER</div>
             <div style="display:flex; gap:10px; align-items:center;">
-                <span id="sessionStatus" class="status-tag">SECURE</span>
-                <button onclick="executeLogout()" style="padding: 5px 10px; font-size:0.8rem;">Exit</button>
+                <span id="sessionStatus" class="status-tag">DIRECT ACCESS</span>
             </div>
         </div>
         <div class="chat-messages" id="chatBox">
-            <div class="message lora">You are logged in</div>
+            <div class="message lora">Core initialized. Execution terminal prepared. Direct link mode active.</div>
         </div>
         <div class="chat-input-area">
-            <input type="text" id="userInput" placeholder="EXECUTE COMMAND..." onkeydown="if(event.key === 'Enter') sendTerminalMessage()">
+            <input type="text" id="userInput" placeholder="EXECUTE COMMAND..." onkeydown="if(event.key === 'Enter') sendTerminalMessage()" autofocus>
             <button onclick="sendTerminalMessage()">Execute</button>
         </div>
     </div>
 
     <script>
         const API_URL = "http://localhost:8000/chat";
-        
-        // In-memory local user database registry simulator
-        let accountsDb = {
-            "admin": "password"
-        };
-        
-        let isGuestSession = false;
-
-        function switchAuthView(targetViewId) {
-            document.getElementById("loginView").classList.add("hidden");
-            document.getElementById("createView").classList.add("hidden");
-            document.getElementById(targetViewId).classList.remove("hidden");
-            document.getElementById("loginError").style.display = "none";
-            document.getElementById("createError").style.display = "none";
-        }
-
-        function executeRegistration() {
-            const user = document.getElementById("createUser").value.trim();
-            const pass = document.getElementById("createPass").value.trim();
-            const error = document.getElementById("createError");
-
-            if (!user || !pass) {
-                error.innerText = "Error: Fields cannot be blank.";
-                error.style.display = "block";
-                return;
-            }
-
-            if (accountsDb[user]) {
-                error.innerText = "Error: Username already registered.";
-                error.style.display = "block";
-                return;
-            }
-
-            accountsDb[user] = pass;
-            document.getElementById("createUser").value = "";
-            document.getElementById("createPass").value = "";
-            alert("Account registered successfully. Proceeding to login screen.");
-            switchAuthView("loginView");
-        }
-
-        function executeLogin() {
-            const user = document.getElementById("loginUser").value.trim();
-            const pass = document.getElementById("loginPass").value.trim();
-            const error = document.getElementById("loginError");
-
-            if (accountsDb[user] && accountsDb[user] === pass) {
-                error.style.display = "none";
-                isGuestSession = false;
-                launchChatInterface(user);
-            } else {
-                error.style.display = "block";
-            }
-        }
-
-        function enterAsGuest() {
-            isGuestSession = true;
-            launchChatInterface("GUEST_USER");
-        }
-
-        function launchChatInterface(sessionName) {
-            document.getElementById("loginView").classList.add("hidden");
-            document.getElementById("createView").classList.add("hidden");
-            document.getElementById("chatView").classList.remove("hidden");
-            
-            document.getElementById("userSessionTag").innerText = sessionName.toUpperCase();
-            
-            const statusTag = document.getElementById("sessionStatus");
-            if (isGuestSession) {
-                statusTag.innerText = "GUEST RESTRICTED MODE";
-                statusTag.style.borderColor = "#ff0000";
-                statusTag.style.color = "#ff0000";
-            } else {
-                statusTag.innerText = "AUTHENTICATED SECURE";
-                statusTag.style.borderColor = "#00ff00";
-                statusTag.style.color = "#00ff00";
-            }
-            
-            document.getElementById("userInput").focus();
-        }
-
-        function executeLogout() {
-            document.getElementById("loginUser").value = "";
-            document.getElementById("loginPass").value = "";
-            document.getElementById("chatView").classList.add("hidden");
-            switchAuthView("loginView");
-        }
 
         async function sendTerminalMessage() {
             const input = document.getElementById("userInput");
@@ -205,7 +62,7 @@
             
             if (!query) return;
 
-            // Render output array element instantly
+            // Render user input element instantly
             const userDiv = document.createElement("div");
             userDiv.className = "message user";
             userDiv.innerText = `USER: ${query}`;
@@ -213,18 +70,6 @@
             
             input.value = "";
             chatBox.scrollTop = chatBox.scrollHeight;
-
-            // Enforce restricted functionality condition if inside Guest Session
-            if (isGuestSession) {
-                setTimeout(() => {
-                    const loraDiv = document.createElement("div");
-                    loraDiv.className = "message lora";
-                    loraDiv.innerText = "SYSTEM REJECTION: Guest sessions cannot communicate with the local AI backend. Please register or log in.";
-                    chatBox.appendChild(loraDiv);
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }, 300);
-                return;
-            }
 
             try {
                 const response = await fetch(API_URL, {
