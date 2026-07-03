@@ -5,80 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lora AI</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background: #000000; color: #ececec; display: flex; height: 100vh; overflow: hidden; }
+        /* Base Themes variables default map system */
+        :root {
+            --bg-main: #000000;
+            --bg-sidebar: #0d0d0d;
+            --border-color: #1a1a1a;
+            --text-main: #ececec;
+            --text-muted: #b4b4b4;
+            --text-heading: #ffffff;
+            --btn-secondary: #1a1a1a;
+            --btn-secondary-border: #333333;
+            --user-bubble: #2f2f2f;
+            --input-bg: #1d1d1d;
+            --send-btn-bg: #ffffff;
+            --send-btn-txt: #000000;
+            --code-bg: #1e1e1e;
+            --code-header: #2d2d2d;
+        }
 
-        /* Sidebar View Elements */
-        .sidebar { width: 260px; background: #0d0d0d; display: flex; flex-direction: column; padding: 16px; border-right: 1px solid #1a1a1a; }
+        [data-theme="light"] {
+            --bg-main: #ffffff;
+            --bg-sidebar: #f3f3f3;
+            --border-color: #e5e5e5;
+            --text-main: #2f2f2f;
+            --text-muted: #666666;
+            --text-heading: #000000;
+            --btn-secondary: #e5e5e5;
+            --btn-secondary-border: #cccccc;
+            --user-bubble: #f0f0f0;
+            --input-bg: #f4f4f4;
+            --send-btn-bg: #000000;
+            --send-btn-txt: #ffffff;
+            --code-bg: #f8f8f8;
+            --code-header: #e1e1e1;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background-color 0.2s speed, color 0.2s; }
+        body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar View Layout */
+        .sidebar { width: 260px; background: var(--bg-sidebar); display: flex; flex-direction: column; padding: 16px; border-right: 1px solid var(--border-color); }
         .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
         .logo-container { display: flex; align-items: center; gap: 10px; }
         .logo-img { width: 28px; height: 28px; object-fit: contain; }
-        .logo-text { font-size: 1.1rem; font-weight: 600; color: #ffffff; }
-        .new-session-btn { background: #1a1a1a; color: #ffffff; border: 1px solid #333333; padding: 6px 12px; font-size: 0.85rem; border-radius: 8px; cursor: pointer; }
-        .new-session-btn:hover { background: #2a2a2a; }
-        .history-title { font-size: 0.75rem; text-transform: uppercase; color: #666666; margin-bottom: 10px; font-weight: 600; padding-left: 8px; }
+        .logo-text { font-size: 1.1rem; font-weight: 600; color: var(--text-heading); }
+        
+        .controls-group { display: flex; gap: 6px; align-items: center; }
+        .theme-toggle-btn { background: var(--btn-secondary); border: 1px solid var(--btn-secondary-border); color: var(--text-heading); padding: 6px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; }
+        .new-session-btn { background: var(--btn-secondary); color: var(--text-heading); border: 1px solid var(--btn-secondary-border); padding: 6px 12px; font-size: 0.85rem; border-radius: 8px; cursor: pointer; }
+        .new-session-btn:hover, .theme-toggle-btn:hover { opacity: 0.8; }
+        
+        .history-title { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; font-weight: 600; padding-left: 8px; }
         .history-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 2px; }
-        .history-item { padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; color: #b4b4b4; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .history-item:hover, .history-item.active { background: #1a1a1a; color: #ffffff; }
+        .history-item { padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; color: var(--text-muted); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-item:hover, .history-item.active { background: var(--btn-secondary); color: var(--text-heading); }
 
-        /* Main Messaging Layout Canvas */
-        .main-content { flex: 1; display: flex; flex-direction: column; background: #000000; }
+        /* Main Chat Panel Screen Canvas */
+        .main-content { flex: 1; display: flex; flex-direction: column; background: var(--bg-main); }
         .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; max-width: 760px; width: 100%; margin: 0 auto; }
 
-        .message { padding: 12px 16px; max-width: 90%; line-height: 1.6; font-size: 0.95rem; word-wrap: break-word; border-radius: 18px; }
-        .user { align-self: flex-end; background: #2f2f2f; color: #ffffff; border-bottom-right-radius: 4px; }
-        .lora { align-self: flex-start; background: transparent; color: #ececec; padding-left: 0; max-width: 100%; }
+        .message { padding: 12px 16px; max-width: 90%; line-height: 1.6; font-size: 0.95rem; word-wrap: break-word; border-radius: 18px; color: var(--text-main); }
+        .user { align-self: flex-end; background: var(--user-bubble); border-bottom-right-radius: 4px; }
+        .lora { align-self: flex-start; background: transparent; padding-left: 0; max-width: 100%; }
         .preview-inline-img { max-width: 250px; max-height: 250px; display: block; margin-bottom: 8px; border-radius: 12px; }
 
-        /* Code Block Panel Frames */
-        .code-container {
-            background: #1e1e1e;
-            border-radius: 8px;
-            margin: 12px 0;
-            overflow: hidden;
-            border: 1px solid #333333;
-            max-width: 100%;
-        }
-        .code-header {
-            background: #2d2d2d;
-            padding: 8px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            color: #aaaaaa;
-            text-transform: uppercase;
-            font-family: monospace;
-        }
-        .copy-btn {
-            background: #444444;
-            color: #ffffff;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.75rem;
-        }
-        .copy-btn:hover { background: #555555; }
-        .code-container pre { padding: 16px; margin: 0; overflow-x: auto; background: #1e1e1e; }
+        /* Code Blocks Visual Framing elements */
+        .code-container { background: var(--code-bg); border-radius: 8px; margin: 12px 0; overflow: hidden; border: 1px solid var(--border-color); max-width: 100%; }
+        .code-header { background: var(--code-header); padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-family: monospace; }
+        .copy-btn { background: var(--user-bubble); color: var(--text-main); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
+        .copy-btn:hover { opacity: 0.8; }
+        .code-container pre { padding: 16px; margin: 0; overflow-x: auto; background: var(--code-bg); }
         .code-container code { font-family: 'Courier New', Courier, monospace; color: #9cdcfe; font-size: 0.9rem; white-space: pre; }
+        [data-theme="light"] .code-container code { color: #004080; }
 
-        /* Flat Input Controls Bar */
+        /* Action Input Fields Bar Layout */
         .chat-input-area { padding: 0 20px 24px 20px; max-width: 760px; width: 100%; margin: 0 auto; }
-        .input-wrapper { display: flex; align-items: center; background: #1d1d1d; border-radius: 26px; padding: 6px 12px 6px 18px; gap: 12px; }
-        .upload-label { cursor: pointer; color: #b4b4b4; display: flex; align-items: center; }
-        .upload-label:hover { color: #ffffff; }
+        .input-wrapper { display: flex; align-items: center; background: var(--input-bg); border-radius: 26px; padding: 6px 12px 6px 18px; gap: 12px; }
+        .upload-label { cursor: pointer; color: var(--text-muted); display: flex; align-items: center; }
+        .upload-label:hover { color: var(--text-heading); }
         .upload-label svg { width: 22px; height: 22px; fill: currentColor; }
         #fileUpload { display: none; }
-        input[type="text"] { flex: 1; background: transparent; border: none; padding: 12px 0; color: #ffffff; font-size: 1rem; outline: none; }
+        input[type="text"] { flex: 1; background: transparent; border: none; padding: 12px 0; color: var(--text-heading); font-size: 1rem; outline: none; }
         
-        .send-btn { background: #ffffff; color: #000000; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .send-btn:hover { background: #e3e3e3; }
+        .send-btn { background: var(--send-btn-bg); color: var(--send-btn-txt); border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .send-btn:hover { opacity: 0.9; }
         .send-btn svg { width: 18px; height: 18px; fill: currentColor; }
         
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #2f2f2f; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--user-bubble); border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -89,7 +104,12 @@
                 <img src="LoraAI Full logo.png" alt="Lora Logo" class="logo-img" onerror="this.style.display='none';">
                 <span class="logo-text">Lora</span>
             </div>
-            <button class="new-session-btn" onclick="startNewSession()">New chat</button>
+            <div class="controls-group">
+                <button class="theme-toggle-btn" onclick="toggleInterfaceColorTheme()" title="Toggle Theme">
+                    <svg style="width:16px;height:16px;" viewBox="0 0 24 24"><path fill="currentColor" d="M12,18C11.11,18 10.26,17.8 9.5,17.45C11.56,16.5 13,14.42 13,12C13,9.58 11.56,7.5 9.5,6.55C10.26,6.2 11.11,6 12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M20,8.69V4H15.31L12,0.69L8.69,4H4V8.69L0.69,12L4,15.31V20H8.69L12,23.31L15.31,20H20V15.31L23.31,12L20,8.69Z"/></svg>
+                </button>
+                <button class="new-session-btn" onclick="startNewSession()">New</button>
+            </div>
         </div>
         <div class="history-title">Recent</div>
         <ul class="history-list" id="historyList">
@@ -117,146 +137,158 @@
     </div>
 
     <script>
-    const API_URL = "http://localhost:8000/chat";
-    let currentSelectedImageBase64 = null;
+        const API_URL = "http://localhost:8000/chat";
+        let currentSelectedImageBase64 = null;
 
-    function startNewSession() {
-        document.getElementById("chatBox").innerHTML = '<div class="message lora">New session started. How can I help you today?</div>';
-        clearSelectedImage();
-    }
-
-    function switchSession(element, sessionName) {
-        document.querySelectorAll('.history-item').forEach(item => item.classList.remove('active'));
-        element.classList.add('active');
-        document.getElementById("chatBox").innerHTML = `<div class="message lora">Switched to conversation: "${sessionName}"</div>`;
-        clearSelectedImage();
-    }
-
-    function handleImageSelection() {
-        const fileInput = document.getElementById("fileUpload");
-        if (fileInput.files.length > 0) {
-            const reader = new FileReader();
-            reader.onload = (e) => { 
-                currentSelectedImageBase64 = e.target.result; 
-                document.querySelector(".upload-label").style.color = "#4285f4"; 
-            };
-            reader.readAsDataURL(fileInput.files[0]);
+        function toggleInterfaceColorTheme() {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            const nextTheme = currentTheme === "light" ? "dark" : "light";
+            document.documentElement.setAttribute("data-theme", nextTheme);
         }
-    }
 
-    function clearSelectedImage() {
-        document.getElementById("fileUpload").value = "";
-        document.querySelector(".upload-label").style.color = "#b4b4b4";
-        currentSelectedImageBase64 = null;
-    }
+        function startNewSession() {
+            document.getElementById("chatBox").innerHTML = '<div class="message lora">New session started. How can I help you today?</div>';
+            clearSelectedImage();
+        }
 
-    function parseMarkdownAndRender(text, targetElement) {
-        targetElement.innerHTML = ""; 
-        const codeBlockRegex = /```([a-zA-Z0-9+#-]+)?([\s\S]*?)```/g;
-        let lastIndex = 0;
-        let match;
+        function switchSession(element, sessionName) {
+            document.querySelectorAll('.history-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById("chatBox").innerHTML = `<div class="message lora">Switched to conversation: "${sessionName}"</div>`;
+            clearSelectedImage();
+        }
 
-        while ((match = codeBlockRegex.exec(text)) !== null) {
-            if (match.index > lastIndex) {
+        function handleImageSelection() {
+            const fileInput = document.getElementById("fileUpload");
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = (e) => { 
+                    currentSelectedImageBase64 = e.target.result; 
+                    document.querySelector(".upload-label").style.color = "#4285f4"; 
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }
+
+        function clearSelectedImage() {
+            document.getElementById("fileUpload").value = "";
+            document.querySelector(".upload-label").style.color = "var(--text-muted)";
+            currentSelectedImageBase64 = null;
+        }
+
+        function parseMarkdownAndRender(text, targetElement) {
+            targetElement.innerHTML = ""; 
+            const codeBlockRegex = /```([a-zA-Z0-9+#-]+)?([\s\S]*?)```/g;
+            let lastIndex = 0;
+            let match;
+
+            while ((match = codeBlockRegex.exec(text)) !== null) {
+                if (match.index > lastIndex) {
+                    const textNode = document.createElement("span");
+                    textNode.innerText = text.substring(lastIndex, match.index);
+                    targetElement.appendChild(textNode);
+                }
+
+                const lang = match[1] || "code";
+                const codeText = match[2].trim();
+
+                const container = document.createElement("div");
+                container.className = "code-container";
+                container.innerHTML = `
+                    <div class="code-header">
+                        <span>${lang}</span>
+                        <button class="copy-btn" onclick="copyCodeSnippet(this)">Copy</button>
+                    </div>
+                    <pre><code>${escapeHTML(codeText)}</code></pre>
+                `;
+
+                targetElement.appendChild(container);
+                lastIndex = codeBlockRegex.lastIndex;
+            }
+
+            if (lastIndex < text.length) {
                 const textNode = document.createElement("span");
-                textNode.innerText = text.substring(lastIndex, match.index);
+                textNode.innerText = text.substring(lastIndex);
                 targetElement.appendChild(textNode);
             }
-
-            const lang = match[1] || "code";
-            const codeText = match[2].trim();
-
-            const container = document.createElement("div");
-            container.className = "code-container";
-            container.innerHTML = `
-                <div class="code-header">
-                    <span>${lang}</span>
-                    <button class="copy-btn" onclick="copyCodeSnippet(this)">Copy</button>
-                </div>
-                <pre><code>${escapeHTML(codeText)}</code></pre>
-            `;
-
-            targetElement.appendChild(container);
-            lastIndex = codeBlockRegex.lastIndex;
         }
 
-        if (lastIndex < text.length) {
-            const textNode = document.createElement("span");
-            textNode.innerText = text.substring(lastIndex);
-            targetElement.appendChild(textNode);
+        function escapeHTML(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
-    }
 
-    function escapeHTML(str) {
-        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
-
-    function copyCodeSnippet(button) {
-        const preBlock = button.parentElement.nextElementSibling;
-        const codeText = preBlock.querySelector("code").innerText;
-        navigator.clipboard.writeText(codeText);
-        button.innerText = "Copied!";
-        setTimeout(() => { button.innerText = "Copy"; }, 2000);
-    }
-
-    async function sendTerminalMessage() {
-        const input = document.getElementById("userInput");
-        const chatBox = document.getElementById("chatBox");
-        const query = input.value.trim();
-        
-        if (!query && !currentSelectedImageBase64) return;
-
-        const userDiv = document.createElement("div");
-        userDiv.className = "message user";
-        
-        if (currentSelectedImageBase64) {
-            const imgNode = document.createElement("img");
-            imgNode.src = currentSelectedImageBase64;
-            imgNode.className = "preview-inline-img";
-            userDiv.appendChild(imgNode);
+        function copyCodeSnippet(button) {
+            const preBlock = button.parentElement.nextElementSibling;
+            const codeText = preBlock.querySelector("code").innerText;
+            navigator.clipboard.writeText(codeText);
+            button.innerText = "Copied!";
+            setTimeout(() => { button.innerText = "Copy"; }, 2000);
         }
-        if (query) userDiv.appendChild(document.createTextNode(query));
-        chatBox.appendChild(userDiv);
-        
-        const activeQuery = query;
-        const activeImage = currentSelectedImageBase64;
-        
-        input.value = "";
-        clearSelectedImage();
-        
-        const loraDiv = document.createElement("div");
-        loraDiv.className = "message lora";
-        loraDiv.innerText = "";
-        chatBox.appendChild(loraDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
 
-        try {
-            const response = await fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: activeQuery, image: activeImage })
-            });
+        async function sendTerminalMessage() {
+            const input = document.getElementById("userInput");
+            const chatBox = document.getElementById("chatBox");
+            let query = input.value.trim();
+            
+            if (!query && !currentSelectedImageBase64) return;
 
-            if (!response.ok) throw new Error("Server communication error");
-
-            // Bypasses response.json() entirely to read streaming data chunks
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let accumulatedText = "";
-
-            while (true) {
-                const { value, done } = await reader.read();
-                if (done) break;
-                
-                accumulatedText += decoder.decode(value, { stream: true });
-                parseMarkdownAndRender(accumulatedText, loraDiv);
-                chatBox.scrollTop = chatBox.scrollHeight;
+            const userDiv = document.createElement("div");
+            userDiv.className = "message user";
+            
+            if (currentSelectedImageBase64) {
+                const imgNode = document.createElement("img");
+                imgNode.src = currentSelectedImageBase64;
+                imgNode.className = "preview-inline-img";
+                userDiv.appendChild(imgNode);
             }
-        } catch (err) {
-            loraDiv.style.color = "#ff3333";
-            loraDiv.innerText = `Error: ${err.message}`;
+            
+            if (query) {
+                userDiv.appendChild(document.createTextNode(query));
+            } else if (currentSelectedImageBase64) {
+                userDiv.appendChild(document.createTextNode("[Uploaded Image]"));
+                query = "Describe this image or explain the contents of this file in detail.";
+            }
+            
+            chatBox.appendChild(userDiv);
+            
+            const activeQuery = query;
+            const activeImage = currentSelectedImageBase64;
+            
+            input.value = "";
+            clearSelectedImage();
+            
+            const loraDiv = document.createElement("div");
+            loraDiv.className = "message lora";
+            loraDiv.innerText = "...";
+            chatBox.appendChild(loraDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: activeQuery, image: activeImage })
+                });
+
+                if (!response.ok) throw new Error("Server communication error");
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let accumulatedText = "";
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    
+                    accumulatedText += decoder.decode(value, { stream: true });
+                    parseMarkdownAndRender(accumulatedText, loraDiv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            } catch (err) {
+                loraDiv.style.color = "#ff3333";
+                loraDiv.innerText = `Error: ${err.message}`;
+            }
         }
-    }
-</script>
+    </script>
 </body>
 </html>
