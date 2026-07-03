@@ -117,142 +117,146 @@
     </div>
 
     <script>
-        const API_URL = "http://localhost:8000/chat";
-        let currentSelectedImageBase64 = null;
+    const API_URL = "http://localhost:8000/chat";
+    let currentSelectedImageBase64 = null;
 
-        function startNewSession() {
-            document.getElementById("chatBox").innerHTML = '<div class="message lora">New session started. How can I help you today?</div>';
-            clearSelectedImage();
+    function startNewSession() {
+        document.getElementById("chatBox").innerHTML = '<div class="message lora">New session started. How can I help you today?</div>';
+        clearSelectedImage();
+    }
+
+    function switchSession(element, sessionName) {
+        document.querySelectorAll('.history-item').forEach(item => item.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById("chatBox").innerHTML = `<div class="message lora">Switched to conversation: "${sessionName}"</div>`;
+        clearSelectedImage();
+    }
+
+    function handleImageSelection() {
+        const fileInput = document.getElementById("fileUpload");
+        if (fileInput.files.length > 0) {
+            const reader = new FileReader();
+            reader.onload = (e) => { 
+                currentSelectedImageBase64 = e.target.result; 
+                document.querySelector(".upload-label").style.color = "#4285f4"; 
+            };
+            reader.readAsDataURL(fileInput.files[0]);
         }
+    }
 
-        function switchSession(element, sessionName) {
-            document.querySelectorAll('.history-item').forEach(item => item.classList.remove('active'));
-            element.classList.add('active');
-            document.getElementById("chatBox").innerHTML = `<div class="message lora">Switched to conversation: "${sessionName}"</div>`;
-            clearSelectedImage();
-        }
+    function clearSelectedImage() {
+        document.getElementById("fileUpload").value = "";
+        document.querySelector(".upload-label").style.color = "#b4b4b4";
+        currentSelectedImageBase64 = null;
+    }
 
-        function handleImageSelection() {
-            const fileInput = document.getElementById("fileUpload");
-            if (fileInput.files.length > 0) {
-                const reader = new FileReader();
-                reader.onload = (e) => { currentSelectedImageBase64 = e.target.result; document.querySelector(".upload-label").style.color = "#4285f4"; };
-                reader.readAsDataURL(fileInput.files[0]);
-            }
-        }
+    function parseMarkdownAndRender(text, targetElement) {
+        targetElement.innerHTML = ""; 
+        const codeBlockRegex = /```([a-zA-Z0-9+#-]+)?([\s\S]*?)```/g;
+        let lastIndex = 0;
+        let match;
 
-        function clearSelectedImage() {
-            document.getElementById("fileUpload").value = "";
-            document.querySelector(".upload-label").style.color = "#b4b4b4";
-            currentSelectedImageBase64 = null;
-        }
-
-        function parseMarkdownAndRender(text, targetElement) {
-            targetElement.innerHTML = ""; 
-            const codeBlockRegex = /```([a-zA-Z0-9+#-]+)?([\s\S]*?)```/g;
-            let lastIndex = 0;
-            let match;
-
-            while ((match = codeBlockRegex.exec(text)) !== null) {
-                if (match.index > lastIndex) {
-                    const textNode = document.createElement("span");
-                    textNode.innerText = text.substring(lastIndex, match.index);
-                    targetElement.appendChild(textNode);
-                }
-
-                const lang = match[1] || "code";
-                const codeText = match[2].trim();
-
-                const container = document.createElement("div");
-                container.className = "code-container";
-                container.innerHTML = `
-                    <div class="code-header">
-                        <span>${lang}</span>
-                        <button class="copy-btn" onclick="copyCodeSnippet(this)">Copy</button>
-                    </div>
-                    <pre><code>${escapeHTML(codeText)}</code></pre>
-                `;
-
-                targetElement.appendChild(container);
-                lastIndex = codeBlockRegex.lastIndex;
-            }
-
-            if (lastIndex < text.length) {
+        while ((match = codeBlockRegex.exec(text)) !== null) {
+            if (match.index > lastIndex) {
                 const textNode = document.createElement("span");
-                textNode.innerText = text.substring(lastIndex);
+                textNode.innerText = text.substring(lastIndex, match.index);
                 targetElement.appendChild(textNode);
             }
+
+            const lang = match[1] || "code";
+            const codeText = match[2].trim();
+
+            const container = document.createElement("div");
+            container.className = "code-container";
+            container.innerHTML = `
+                <div class="code-header">
+                    <span>${lang}</span>
+                    <button class="copy-btn" onclick="copyCodeSnippet(this)">Copy</button>
+                </div>
+                <pre><code>${escapeHTML(codeText)}</code></pre>
+            `;
+
+            targetElement.appendChild(container);
+            lastIndex = codeBlockRegex.lastIndex;
         }
 
-        function escapeHTML(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        if (lastIndex < text.length) {
+            const textNode = document.createElement("span");
+            textNode.innerText = text.substring(lastIndex);
+            targetElement.appendChild(textNode);
         }
+    }
 
-        function copyCodeSnippet(button) {
-            const preBlock = button.parentElement.nextElementSibling;
-            const codeText = preBlock.querySelector("code").innerText;
-            navigator.clipboard.writeText(codeText);
-            button.innerText = "Copied!";
-            setTimeout(() => { button.innerText = "Copy"; }, 2000);
+    function escapeHTML(str) {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function copyCodeSnippet(button) {
+        const preBlock = button.parentElement.nextElementSibling;
+        const codeText = preBlock.querySelector("code").innerText;
+        navigator.clipboard.writeText(codeText);
+        button.innerText = "Copied!";
+        setTimeout(() => { button.innerText = "Copy"; }, 2000);
+    }
+
+    async function sendTerminalMessage() {
+        const input = document.getElementById("userInput");
+        const chatBox = document.getElementById("chatBox");
+        const query = input.value.trim();
+        
+        if (!query && !currentSelectedImageBase64) return;
+
+        const userDiv = document.createElement("div");
+        userDiv.className = "message user";
+        
+        if (currentSelectedImageBase64) {
+            const imgNode = document.createElement("img");
+            imgNode.src = currentSelectedImageBase64;
+            imgNode.className = "preview-inline-img";
+            userDiv.appendChild(imgNode);
         }
+        if (query) userDiv.appendChild(document.createTextNode(query));
+        chatBox.appendChild(userDiv);
+        
+        const activeQuery = query;
+        const activeImage = currentSelectedImageBase64;
+        
+        input.value = "";
+        clearSelectedImage();
+        
+        const loraDiv = document.createElement("div");
+        loraDiv.className = "message lora";
+        loraDiv.innerText = "";
+        chatBox.appendChild(loraDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
 
-        async function sendTerminalMessage() {
-            const input = document.getElementById("userInput");
-            const chatBox = document.getElementById("chatBox");
-            const query = input.value.trim();
-            
-            if (!query && !currentSelectedImageBase64) return;
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: activeQuery, image: activeImage })
+            });
 
-            const userDiv = document.createElement("div");
-            userDiv.className = "message user";
-            
-            if (currentSelectedImageBase64) {
-                const imgNode = document.createElement("img");
-                imgNode.src = currentSelectedImageBase64;
-                imgNode.className = "preview-inline-img";
-                userDiv.appendChild(imgNode);
+            if (!response.ok) throw new Error("Server communication error");
+
+            // Bypasses response.json() entirely to read streaming data chunks
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let accumulatedText = "";
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                
+                accumulatedText += decoder.decode(value, { stream: true });
+                parseMarkdownAndRender(accumulatedText, loraDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
             }
-            if (query) userDiv.appendChild(document.createTextNode(query));
-            chatBox.appendChild(userDiv);
-            
-            const activeQuery = query;
-            const activeImage = currentSelectedImageBase64;
-            
-            input.value = "";
-            clearSelectedImage();
-            
-            const loraDiv = document.createElement("div");
-            loraDiv.className = "message lora";
-            loraDiv.innerText = "";
-            chatBox.appendChild(loraDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: activeQuery, image: activeImage })
-                });
-
-                if (!response.ok) throw new Error("Server communication error");
-
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let accumulatedText = "";
-
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) break;
-                    
-                    accumulatedText += decoder.decode(value, { stream: true });
-                    parseMarkdownAndRender(accumulatedText, loraDiv);
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }
-            } catch (err) {
-                loraDiv.style.color = "#ff3333";
-                loraDiv.innerText = `Error: ${err.message}`;
-            }
+        } catch (err) {
+            loraDiv.style.color = "#ff3333";
+            loraDiv.innerText = `Error: ${err.message}`;
         }
-    </script>
+    }
+</script>
 </body>
 </html>
