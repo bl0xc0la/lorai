@@ -3,129 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lora AI</title>
+    <title>Lora AI Core</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background: #0b0f19; color: #f3f4f6; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: monospace; }
+        body { background: #000000; color: #00ff00; padding: 20px; }
         
-        /* Shared Glassmorphism Base */
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.02); 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-            transition: all 0.4s ease;
+        /* Strict Hard-Edged UI Components */
+        .panel { 
+            background: #111111; 
+            border: 2px solid #00ff00; 
+            padding: 20px;
+            margin: 0 auto;
         }
 
-        /* Views configuration */
-        .hidden { display: none !important; opacity: 0; pointer-events: none; }
+        .hidden { display: none !important; }
 
-        /* Login Screen Styles */
-        .login-container { width: 90%; max-width: 400px; padding: 40px 30px; text-align: center; }
-        .login-container h2 { font-weight: 600; margin-bottom: 8px; font-size: 1.8rem; letter-spacing: 0.5px; }
-        .subtitle { color: rgba(255, 255, 255, 0.4); font-size: 0.9rem; margin-bottom: 30px; }
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; color: rgba(255, 255, 255, 0.6); }
+        /* Auth Screen Constraints */
+        .auth-container { width: 400px; }
+        .auth-container h2 { margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px dashed #00ff00; padding-bottom: 5px; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 0.9rem; margin-bottom: 5px; text-transform: uppercase; }
+        
+        .auth-switch-links { margin-top: 15px; font-size: 0.85rem; }
+        .auth-switch-links span { cursor: pointer; text-decoration: underline; margin-right: 15px; }
 
-        /* Chat Screen Styles */
-        .chat-container { width: 90%; max-width: 650px; height: 85vh; display: flex; flex-direction: column; overflow: hidden; }
-        .chat-header { padding: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: center; font-weight: 600; font-size: 1.2rem; display: flex; justify-content: space-between; align-items: center; }
-        .logout-btn { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 12px; font-size: 0.8rem; }
-        .logout-btn:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.4); }
-        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
-        .message { max-width: 75%; padding: 12px 18px; border-radius: 18px; font-size: 0.95rem; line-height: 1.45; animation: fadeIn 0.2s ease-out; }
-        .user { background: rgba(255, 255, 255, 0.08); align-self: flex-end; border-bottom-right-radius: 4px; }
-        .lora { background: rgba(59, 130, 246, 0.15); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.25); }
-        .chat-input-area { padding: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; gap: 12px; }
+        /* Chat Layout */
+        .chat-container { width: 100%; max-width: 800px; height: 85vh; display: flex; flex-direction: column; }
+        .chat-header { padding-bottom: 10px; border-bottom: 2px solid #00ff00; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .chat-messages { flex: 1; border: 1px solid #00ff00; background: #050505; padding: 15px; overflow-y: scroll; display: flex; flex-direction: column; gap: 10px; }
+        .message { padding: 8px; border: 1px dotted #00ff00; max-width: 85%; word-break: break-all; }
+        .user { align-self: flex-end; background: #112211; color: #ffffff; border-color: #ffffff; }
+        .lora { align-self: flex-start; background: #111111; }
+        .chat-input-area { margin-top: 15px; display: flex; gap: 10px; }
 
-        /* Form Controls */
-        input { width: 100%; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px 16px; color: white; outline: none; font-size: 0.95rem; transition: all 0.2s; }
-        input:focus { border-color: rgba(59, 130, 246, 0.5); background: rgba(255, 255, 255, 0.07); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
-        button { background: #3b82f6; color: white; border: none; padding: 14px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; }
-        button:hover { background: #2563eb; }
-        .error-text { color: #ef4444; font-size: 0.85rem; margin-top: 8px; text-align: left; display: none; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        /* Form Interaction Fields */
+        input { width: 100%; background: #000000; border: 1px solid #00ff00; padding: 10px; color: #00ff00; font-family: monospace; }
+        input:focus { background: #111111; outline: none; }
+        button { background: #00ff00; color: #000000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; font-family: monospace; text-transform: uppercase; }
+        button:hover { background: #00cc00; }
+        .guest-btn { background: #333333; color: #00ff00; border: 1px solid #00ff00; }
+        .guest-btn:hover { background: #222222; }
+        
+        .error-text { color: #ff0000; font-size: 0.9rem; margin-top: 10px; display: none; text-transform: uppercase; }
+        .status-tag { font-size: 0.8rem; background: #222222; padding: 2px 6px; border: 1px solid #00ff00; }
     </style>
 </head>
 <body>
 
-    <div id="loginView" class="glass-card login-container">
-        <h2>Welcome Back</h2>
-        <div class="subtitle">Access Lora AI</div>
-        
+    <div id="loginView" class="panel auth-container">
+        <h2>System Login</h2>
         <div class="input-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" placeholder="Enter username">
+            <label>Username</label>
+            <input type="text" id="loginUser">
         </div>
-        
         <div class="input-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Enter password" onkeydown="if(event.key === 'Enter') handleLogin()">
+            <label>Password</label>
+            <input type="password" id="loginPass" onkeydown="if(event.key === 'Enter') executeLogin()">
         </div>
+        <div id="loginError" class="error-text">Auth Failure: Invalid Credentials.</div>
         
-        <div id="loginError" class="error-text">Invalid username or password.</div>
-        <button onclick="handleLogin()" style="width: 100%; margin-top: 10px;">Sign In</button>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button onclick="executeLogin()">Sign In</button>
+            <button class="guest-btn" onclick="enterAsGuest()">Guest Mode</button>
+        </div>
+        <div class="auth-switch-links">
+            <span onclick="switchAuthView('createView')">[Create Account]</span>
+        </div>
     </div>
 
-    <div id="chatView" class="glass-card chat-container hidden">
+    <div id="createView" class="panel auth-container hidden">
+        <h2>Register Account</h2>
+        <div class="input-group">
+            <label>Desired Username</label>
+            <input type="text" id="createUser">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="createPass">
+        </div>
+        <div id="createError" class="error-text">Registration Failure: Requirements not met.</div>
+        
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button onclick="executeRegistration()">Register</button>
+            <button class="guest-btn" onclick="enterAsGuest()">Guest Mode</button>
+        </div>
+        <div class="auth-switch-links">
+            <span onclick="switchAuthView('loginView')">[Back to Login]</span>
+        </div>
+    </div>
+
+    <div id="chatView" class="panel chat-container hidden">
         <div class="chat-header">
-            <span>Lora AI</span>
-            <button class="logout-btn" onclick="handleLogout()">Disconnect</button>
+            <div>NODE SYSTEM ID: <span id="userSessionTag">UNKNOWN</span></div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <span id="sessionStatus" class="status-tag">SECURE</span>
+                <button onclick="executeLogout()" style="padding: 5px 10px; font-size:0.8rem;">Exit</button>
+            </div>
         </div>
         <div class="chat-messages" id="chatBox">
-            <div class="message lora">How can I help you?</div>
+            <div class="message lora">You are logged in</div>
         </div>
         <div class="chat-input-area">
-            <input type="text" id="userInput" placeholder="Type a message..." onkeydown="if(event.key === 'Enter') sendMessage()">
-            <button onclick="sendMessage()">Send</button>
+            <input type="text" id="userInput" placeholder="EXECUTE COMMAND..." onkeydown="if(event.key === 'Enter') sendTerminalMessage()">
+            <button onclick="sendTerminalMessage()">Execute</button>
         </div>
     </div>
 
     <script>
         const API_URL = "http://localhost:8000/chat";
+        
+        // In-memory local user database registry simulator
+        let accountsDb = {
+            "admin": "password"
+        };
+        
+        let isGuestSession = false;
 
-        // Login management logic
-        function handleLogin() {
-            const userIn = document.getElementById("username").value.trim();
-            const passIn = document.getElementById("password").value.trim();
-            const errorElement = document.getElementById("loginError");
+        function switchAuthView(targetViewId) {
+            document.getElementById("loginView").classList.add("hidden");
+            document.getElementById("createView").classList.add("hidden");
+            document.getElementById(targetViewId).classList.remove("hidden");
+            document.getElementById("loginError").style.display = "none";
+            document.getElementById("createError").style.display = "none";
+        }
 
-            // Hardcoded credential check (Replace or link up with actual backend auth if needed)
-            if (userIn === "admin" && passIn === "password") {
-                errorElement.style.display = "none";
-                document.getElementById("loginView").classList.add("hidden");
-                document.getElementById("chatView").classList.remove("hidden");
-                document.getElementById("userInput").focus();
+        function executeRegistration() {
+            const user = document.getElementById("createUser").value.trim();
+            const pass = document.getElementById("createPass").value.trim();
+            const error = document.getElementById("createError");
+
+            if (!user || !pass) {
+                error.innerText = "Error: Fields cannot be blank.";
+                error.style.display = "block";
+                return;
+            }
+
+            if (accountsDb[user]) {
+                error.innerText = "Error: Username already registered.";
+                error.style.display = "block";
+                return;
+            }
+
+            accountsDb[user] = pass;
+            document.getElementById("createUser").value = "";
+            document.getElementById("createPass").value = "";
+            alert("Account registered successfully. Proceeding to login screen.");
+            switchAuthView("loginView");
+        }
+
+        function executeLogin() {
+            const user = document.getElementById("loginUser").value.trim();
+            const pass = document.getElementById("loginPass").value.trim();
+            const error = document.getElementById("loginError");
+
+            if (accountsDb[user] && accountsDb[user] === pass) {
+                error.style.display = "none";
+                isGuestSession = false;
+                launchChatInterface(user);
             } else {
-                errorElement.style.display = "block";
+                error.style.display = "block";
             }
         }
 
-        function handleLogout() {
-            // Clear inputs and switch back to credentials screen
-            document.getElementById("username").value = "";
-            document.getElementById("password").value = "";
-            document.getElementById("chatView").classList.add("hidden");
-            document.getElementById("loginView").classList.remove("hidden");
+        function enterAsGuest() {
+            isGuestSession = true;
+            launchChatInterface("GUEST_USER");
         }
 
-        // Chat stream communication
-        async function sendMessage() {
+        function launchChatInterface(sessionName) {
+            document.getElementById("loginView").classList.add("hidden");
+            document.getElementById("createView").classList.add("hidden");
+            document.getElementById("chatView").classList.remove("hidden");
+            
+            document.getElementById("userSessionTag").innerText = sessionName.toUpperCase();
+            
+            const statusTag = document.getElementById("sessionStatus");
+            if (isGuestSession) {
+                statusTag.innerText = "GUEST RESTRICTED MODE";
+                statusTag.style.borderColor = "#ff0000";
+                statusTag.style.color = "#ff0000";
+            } else {
+                statusTag.innerText = "AUTHENTICATED SECURE";
+                statusTag.style.borderColor = "#00ff00";
+                statusTag.style.color = "#00ff00";
+            }
+            
+            document.getElementById("userInput").focus();
+        }
+
+        function executeLogout() {
+            document.getElementById("loginUser").value = "";
+            document.getElementById("loginPass").value = "";
+            document.getElementById("chatView").classList.add("hidden");
+            switchAuthView("loginView");
+        }
+
+        async function sendTerminalMessage() {
             const input = document.getElementById("userInput");
             const chatBox = document.getElementById("chatBox");
             const query = input.value.trim();
             
             if (!query) return;
 
-            // Render User bubble immediately 
+            // Render output array element instantly
             const userDiv = document.createElement("div");
             userDiv.className = "message user";
-            userDiv.innerText = query;
+            userDiv.innerText = `USER: ${query}`;
             chatBox.appendChild(userDiv);
             
             input.value = "";
             chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Enforce restricted functionality condition if inside Guest Session
+            if (isGuestSession) {
+                setTimeout(() => {
+                    const loraDiv = document.createElement("div");
+                    loraDiv.className = "message lora";
+                    loraDiv.innerText = "SYSTEM REJECTION: Guest sessions cannot communicate with the local AI backend. Please register or log in.";
+                    chatBox.appendChild(loraDiv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 300);
+                return;
+            }
 
             try {
                 const response = await fetch(API_URL, {
@@ -134,19 +233,20 @@
                     body: JSON.stringify({ message: query })
                 });
 
-                if (!response.ok) throw new Error("Endpoint returned an error status");
+                if (!response.ok) throw new Error("BAD_STATUS");
                 
                 const data = await response.json();
                 
                 const loraDiv = document.createElement("div");
                 loraDiv.className = "message lora";
-                loraDiv.innerText = data.reply;
+                loraDiv.innerText = `LORA: ${data.reply}`;
                 chatBox.appendChild(loraDiv);
             } catch (err) {
                 const errorDiv = document.createElement("div");
                 errorDiv.className = "message lora";
-                errorDiv.style.color = "#ef4444";
-                errorDiv.innerText = "Error: Failed to connect to local engine backend runtime.";
+                errorDiv.style.color = "#ff0000";
+                errorDiv.style.borderColor = "#ff0000";
+                errorDiv.innerText = "CRITICAL ERROR: Failed connection string to remote process runtime backend.";
                 chatBox.appendChild(errorDiv);
             }
             chatBox.scrollTop = chatBox.scrollHeight;
