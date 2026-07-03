@@ -1,7 +1,7 @@
 // app.js - Unified Frontend Logic for Lora AI
 
 // Update this to match your local server port and endpoint exactly
-const API_URL = "http://localhost:8000/chat";
+const API_URL = "http://192.168.4.202:8000/chat";
 
 async function sendMessage() {
     const input = document.getElementById("userInput");
