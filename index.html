@@ -5,234 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lora AI</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        
-        body { 
-            background: #000000; 
-            color: #ececec; 
-            display: flex; 
-            height: 100vh;
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: #000000; color: #ececec; display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar styling */
+        .sidebar { width: 260px; background: #0d0d0d; display: flex; flex-direction: column; padding: 16px; border-right: 1px solid #1a1a1a; }
+        .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .logo-container { display: flex; align-items: center; gap: 10px; }
+        .logo-img { width: 28px; height: 28px; object-fit: contain; }
+        .logo-text { font-size: 1.1rem; font-weight: 600; color: #ffffff; }
+        .new-session-btn { background: #1a1a1a; color: #ffffff; border: 1px solid #333333; padding: 6px 12px; font-size: 0.85rem; border-radius: 8px; cursor: pointer; }
+        .new-session-btn:hover { background: #2a2a2a; }
+        .history-title { font-size: 0.75rem; text-transform: uppercase; color: #666666; margin-bottom: 10px; font-weight: 600; padding-left: 8px; }
+        .history-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+        .history-item { padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; color: #b4b4b4; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-item:hover, .history-item.active { background: #1a1a1a; color: #ffffff; }
+
+        /* Main Chat Window */
+        .main-content { flex: 1; display: flex; flex-direction: column; background: #000000; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; max-width: 760px; width: 100%; margin: 0 auto; }
+
+        /* Chat Layout Elements */
+        .message { padding: 12px 16px; max-width: 90%; line-height: 1.6; font-size: 0.95rem; word-wrap: break-word; border-radius: 18px; }
+        .user { align-self: flex-end; background: #2f2f2f; color: #ffffff; border-bottom-right-radius: 4px; }
+        .lora { align-self: flex-start; background: transparent; color: #ececec; padding-left: 0; max-width: 100%; }
+        .preview-inline-img { max-width: 250px; max-height: 250px; display: block; margin-bottom: 8px; border-radius: 12px; }
+
+        /* Code Block Box Frame Styling */
+        .code-container {
+            background: #1e1e1e;
+            border-radius: 8px;
+            margin: 12px 0;
             overflow: hidden;
-        }
-
-        /* Modern Flat Sidebar */
-        .sidebar {
-            width: 260px;
-            background: #0d0d0d;
-            display: flex;
-            flex-direction: column;
-            padding: 16px;
-        }
-
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-img {
-            width: 28px;
-            height: 28px;
-            object-fit: contain;
-        }
-
-        .logo-text {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .new-session-btn {
-            background: #1a1a1a;
-            color: #ffffff;
             border: 1px solid #333333;
-            padding: 6px 12px;
-            font-size: 0.85rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .new-session-btn:hover {
-            background: #2a2a2a;
-        }
-
-        .history-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: #666666;
-            margin-bottom: 10px;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-            padding-left: 8px;
-        }
-
-        .history-list {
-            flex: 1;
-            overflow-y: auto;
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .history-item {
-            padding: 10px 12px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            color: #b4b4b4;
-            cursor: pointer;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            transition: background 0.2s, color 0.2s;
-        }
-
-        .history-item:hover, .history-item.active {
-            background: #1a1a1a;
-            color: #ffffff;
-        }
-
-        /* Main Chat Area */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #000000;
-        }
-
-        .chat-messages { 
-            flex: 1; 
-            padding: 20px; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 24px;
-            max-width: 760px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        /* Flat ChatGPT/Gemini Style Message Layout */
-        .message { 
-            padding: 12px 16px; 
-            max-width: 85%; 
-            line-height: 1.6;
-            font-size: 0.95rem;
-            word-wrap: break-word;
-            border-radius: 18px;
-        }
-        
-        .user { 
-            align-self: flex-end; 
-            background: #2f2f2f;
-            color: #ffffff; 
-            border-bottom-right-radius: 4px;
-        }
-        
-        .lora { 
-            align-self: flex-start; 
-            background: transparent;
-            color: #ececec; 
-            padding-left: 0;
             max-width: 100%;
         }
-
-        .preview-inline-img {
-            max-width: 250px;
-            max-height: 250px;
-            display: block;
-            margin-bottom: 8px;
-            border-radius: 12px;
-        }
-        
-        /* Floating Flat Input Bar */
-        .chat-input-area { 
-            padding: 0 20px 24px 20px; 
-            max-width: 760px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        .input-wrapper {
+        .code-header {
+            background: #2d2d2d;
+            padding: 8px 16px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            background: #1d1d1d;
-            border-radius: 26px;
-            padding: 6px 12px 6px 18px;
-            gap: 12px;
+            font-size: 0.8rem;
+            color: #aaaaaa;
+            text-transform: uppercase;
+            font-family: monospace;
         }
-
-        .upload-label {
-            cursor: pointer;
-            color: #b4b4b4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: color 0.2s;
-        }
-
-        .upload-label:hover {
+        .copy-btn {
+            background: #444444;
             color: #ffffff;
-        }
-
-        .upload-label svg {
-            width: 22px;
-            height: 22px;
-            fill: currentColor;
-        }
-
-        #fileUpload {
-            display: none;
-        }
-
-        input[type="text"] { 
-            flex: 1; 
-            background: transparent; 
-            border: none; 
-            padding: 12px 0; 
-            color: #ffffff; 
-            font-size: 1rem;
-            outline: none;
-        }
-        
-        /* Circular Flat Send Button */
-        .send-btn { 
-            background: #ffffff; 
-            color: #000000; 
             border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer; 
-            transition: background 0.2s, transform 0.1s;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
         }
+        .copy-btn:hover { background: #555555; }
+        .code-container pre {
+            padding: 16px;
+            margin: 0;
+            overflow-x: auto;
+            background: #1e1e1e;
+        }
+        .code-container code {
+            font-family: 'Courier New', Courier, monospace;
+            color: #9cdcfe;
+            font-size: 0.9rem;
+            white-space: pre;
+        }
+
+        /* Footer Input Area */
+        .chat-input-area { padding: 0 20px 24px 20px; max-width: 760px; width: 100%; margin: 0 auto; }
+        .input-wrapper { display: flex; align-items: center; background: #1d1d1d; border-radius: 26px; padding: 6px 12px 6px 18px; gap: 12px; }
+        .upload-label { cursor: pointer; color: #b4b4b4; display: flex; align-items: center; }
+        .upload-label:hover { color: #ffffff; }
+        .upload-label svg { width: 22px; height: 22px; fill: currentColor; }
+        #fileUpload { display: none; }
+        input[type="text"] { flex: 1; background: transparent; border: none; padding: 12px 0; color: #ffffff; font-size: 1rem; outline: none; }
         
-        .send-btn:hover { 
-            background: #e3e3e3;
-        }
-
-        .send-btn svg {
-            width: 18px;
-            height: 18px;
-            fill: currentColor;
-        }
-
-        /* Smooth modern scrollbar */
+        .send-btn { background: #ffffff; color: #000000; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .send-btn:hover { background: #e3e3e3; }
+        .send-btn svg { width: 18px; height: 18px; fill: currentColor; }
+        
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #2f2f2f; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3f3f3f; }
     </style>
 </head>
 <body>
@@ -245,12 +102,9 @@
             </div>
             <button class="new-session-btn" onclick="startNewSession()">New chat</button>
         </div>
-        
         <div class="history-title">Recent</div>
         <ul class="history-list" id="historyList">
             <li class="history-item active" onclick="switchSession(this, 'Welcome Session')">Default Conversation</li>
-            <li class="history-item" onclick="switchSession(this, 'UI Adjustments')">UI Adjustments</li>
-            <li class="history-item" onclick="switchSession(this, 'Server Configurations')">Server Configurations</li>
         </ul>
     </div>
 
@@ -262,18 +116,12 @@
         <div class="chat-input-area">
             <div class="input-wrapper">
                 <label for="fileUpload" class="upload-label" title="Upload Image">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-3.31 2.69-6 6-6s6 2.69 6 6v10.5c0 4.42-3.58 8-8 8s-8-3.58-8-8V6h2v9.5c0 3.31 2.69 6 6 6s6-2.69 6-6V5c0-2.21-1.79-4-4-4s-4 1.79-4 4v12.5c0 1.1.9 2 2 2s2-.9 2-2V6h2z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-3.31 2.69-6 6-6s6 2.69 6 6v10.5c0 4.42-3.58 8-8 8s-8-3.58-8-8V6h2v9.5c0 3.31 2.69 6 6 6s6-2.69 6-6V5c0-2.21-1.79-4-4-4s-4 1.79-4 4v12.5c0 1.1.9 2 2 2s2-.9 2-2V6h2z"/></svg>
                 </label>
                 <input type="file" id="fileUpload" accept="image/*" onchange="handleImageSelection()">
-                
                 <input type="text" id="userInput" placeholder="Message Lora..." onkeydown="if(event.key === 'Enter') sendTerminalMessage()" autofocus>
-                
                 <button class="send-btn" onclick="sendTerminalMessage()">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                 </button>
             </div>
         </div>
@@ -284,33 +132,23 @@
         let currentSelectedImageBase64 = null;
 
         function startNewSession() {
-            const chatBox = document.getElementById("chatBox");
-            chatBox.innerHTML = '<div class="message lora">New session started. How can I help you today?</div>';
+            document.getElementById("chatBox").innerHTML = '<div class="message lora">New session started. How can I help you today?</div>';
             clearSelectedImage();
         }
 
         function switchSession(element, sessionName) {
             document.querySelectorAll('.history-item').forEach(item => item.classList.remove('active'));
             element.classList.add('active');
-            
-            const chatBox = document.getElementById("chatBox");
-            chatBox.innerHTML = `<div class="message lora">Switched to conversation: "${sessionName}". History loaded.</div>`;
+            document.getElementById("chatBox").innerHTML = `<div class="message lora">Switched to conversation: "${sessionName}"</div>`;
             clearSelectedImage();
         }
 
         function handleImageSelection() {
             const fileInput = document.getElementById("fileUpload");
-            const label = document.querySelector(".upload-label");
-            
             if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                label.style.color = "#4285f4"; // Change icon color to blue to show active file
-                
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentSelectedImageBase64 = e.target.result;
-                };
-                reader.readAsDataURL(file);
+                reader.onload = (e) => { currentSelectedImageBase64 = e.target.result; document.querySelector(".upload-label").style.color = "#4285f4"; };
+                reader.readAsDataURL(fileInput.files[0]);
             }
         }
 
@@ -318,6 +156,57 @@
             document.getElementById("fileUpload").value = "";
             document.querySelector(".upload-label").style.color = "#b4b4b4";
             currentSelectedImageBase64 = null;
+        }
+
+        // Formats raw code patterns into UI component blocks
+        function parseMarkdownAndRender(text, targetElement) {
+            targetElement.innerHTML = ""; 
+            const codeBlockRegex = /```([a-zA-Z0-9+#-]+)?([\s\S]*?)```/g;
+            let lastIndex = 0;
+            let match;
+
+            while ((match = codeBlockRegex.exec(text)) !== null) {
+                if (match.index > lastIndex) {
+                    const textNode = document.createElement("span");
+                    textNode.innerText = text.substring(lastIndex, match.index);
+                    targetElement.appendChild(textNode);
+                }
+
+                const lang = match[1] || "code";
+                const codeText = match[2].trim();
+
+                const container = document.createElement("div");
+                container.className = "code-container";
+
+                container.innerHTML = `
+                    <div class="code-header">
+                        <span>${lang}</span>
+                        <button class="copy-btn" onclick="copyCodeSnippet(this)">Copy</button>
+                    </div>
+                    <pre><code>${escapeHTML(codeText)}</code></pre>
+                `;
+
+                targetElement.appendChild(container);
+                lastIndex = codeBlockRegex.lastIndex;
+            }
+
+            if (lastIndex < text.length) {
+                const textNode = document.createElement("span");
+                textNode.innerText = text.substring(lastIndex);
+                targetElement.appendChild(textNode);
+            }
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function copyCodeSnippet(button) {
+            const preBlock = button.parentElement.nextElementSibling;
+            const codeText = preBlock.querySelector("code").innerText;
+            navigator.clipboard.writeText(codeText);
+            button.innerText = "Copied!";
+            setTimeout(() => { button.innerText = "Copy"; }, 2000);
         }
 
         async function sendTerminalMessage() {
@@ -336,12 +225,7 @@
                 imgNode.className = "preview-inline-img";
                 userDiv.appendChild(imgNode);
             }
-            
-            if (query) {
-                const textNode = document.createTextNode(query);
-                userDiv.appendChild(textNode);
-            }
-            
+            if (query) userDiv.appendChild(document.createTextNode(query));
             chatBox.appendChild(userDiv);
             
             const activeQuery = query;
@@ -349,34 +233,39 @@
             
             input.value = "";
             clearSelectedImage();
+            
+            // Create target placeholder box for the incoming text stream
+            const loraDiv = document.createElement("div");
+            loraDiv.className = "message lora";
+            loraDiv.innerText = "...";
+            chatBox.appendChild(loraDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
                 const response = await fetch(API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        message: activeQuery,
-                        image: activeImage
-                    })
+                    body: JSON.stringify({ message: activeQuery, image: activeImage })
                 });
 
-                if (!response.ok) throw new Error(`Status ${response.status}`);
+                if (!response.ok) throw new Error("Server communication fault");
 
-                const data = await response.json();
-                
-                const loraDiv = document.createElement("div");
-                loraDiv.className = "message lora";
-                loraDiv.innerText = data.reply;
-                chatBox.appendChild(loraDiv);
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let accumulatedText = "";
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    
+                    accumulatedText += decoder.decode(value, { stream: true });
+                    parseMarkdownAndRender(accumulatedText, loraDiv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
             } catch (err) {
-                const errorDiv = document.createElement("div");
-                errorDiv.className = "message lora";
-                errorDiv.style.color = "#ff3333";
-                errorDiv.innerText = `Error: Could not connect to the server on port 8000. (${err.message})`;
-                chatBox.appendChild(errorDiv);
+                loraDiv.style.color = "#ff3333";
+                loraDiv.innerText = `Error processing transaction connection stream: ${err.message}`;
             }
-            chatBox.scrollTop = chatBox.scrollHeight;
         }
     </script>
 </body>
