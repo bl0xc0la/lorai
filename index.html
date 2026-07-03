@@ -3,36 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lora AI Core</title>
+    <title>Lora AI</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background: #0b0f19; color: #f3f4f6; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        body { background: #0b0f19; color: #f3f4f6; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        /* Glassmorphism UI */
-        .chat-container { 
-            width: 90%; max-width: 600px; height: 80vh; 
-            background: rgba(255, 255, 255, 0.03); 
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        /* Shared Glassmorphism Base */
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.02); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px;
-            display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            transition: all 0.4s ease;
         }
-        .chat-header { padding: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: center; font-weight: 600; font-size: 1.2rem; }
-        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .message { max-width: 80%; padding: 12px 16px; border-radius: 16px; font-size: 0.95rem; }
-        .user { background: rgba(255, 255, 255, 0.1); align-self: flex-end; border-bottom-right-radius: 4px; }
-        .lora { background: rgba(59, 130, 246, 0.2); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+        /* Views configuration */
+        .hidden { display: none !important; opacity: 0; pointer-events: none; }
+
+        /* Login Screen Styles */
+        .login-container { width: 90%; max-width: 400px; padding: 40px 30px; text-align: center; }
+        .login-container h2 { font-weight: 600; margin-bottom: 8px; font-size: 1.8rem; letter-spacing: 0.5px; }
+        .subtitle { color: rgba(255, 255, 255, 0.4); font-size: 0.9rem; margin-bottom: 30px; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; color: rgba(255, 255, 255, 0.6); }
+
+        /* Chat Screen Styles */
+        .chat-container { width: 90%; max-width: 650px; height: 85vh; display: flex; flex-direction: column; overflow: hidden; }
+        .chat-header { padding: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: center; font-weight: 600; font-size: 1.2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logout-btn { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 12px; font-size: 0.8rem; }
+        .logout-btn:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.4); }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+        .message { max-width: 75%; padding: 12px 18px; border-radius: 18px; font-size: 0.95rem; line-height: 1.45; animation: fadeIn 0.2s ease-out; }
+        .user { background: rgba(255, 255, 255, 0.08); align-self: flex-end; border-bottom-right-radius: 4px; }
+        .lora { background: rgba(59, 130, 246, 0.15); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.25); }
         .chat-input-area { padding: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; gap: 12px; }
-        input { flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 12px 16px; color: white; outline: none; }
-        button { background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+
+        /* Form Controls */
+        input { width: 100%; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px 16px; color: white; outline: none; font-size: 0.95rem; transition: all 0.2s; }
+        input:focus { border-color: rgba(59, 130, 246, 0.5); background: rgba(255, 255, 255, 0.07); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+        button { background: #3b82f6; color: white; border: none; padding: 14px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; }
+        button:hover { background: #2563eb; }
+        .error-text { color: #ef4444; font-size: 0.85rem; margin-top: 8px; text-align: left; display: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="chat-container">
-        <div class="chat-header">Lora AI</div>
+    <div id="loginView" class="glass-card login-container">
+        <h2>Welcome Back</h2>
+        <div class="subtitle">Access Lora AI</div>
+        
+        <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter username">
+        </div>
+        
+        <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter password" onkeydown="if(event.key === 'Enter') handleLogin()">
+        </div>
+        
+        <div id="loginError" class="error-text">Invalid username or password.</div>
+        <button onclick="handleLogin()" style="width: 100%; margin-top: 10px;">Sign In</button>
+    </div>
+
+    <div id="chatView" class="glass-card chat-container hidden">
+        <div class="chat-header">
+            <span>Lora AI</span>
+            <button class="logout-btn" onclick="handleLogout()">Disconnect</button>
+        </div>
         <div class="chat-messages" id="chatBox">
-            <div class="message lora">Hello, how can I help you today?</div>
+            <div class="message lora">How can I help you?</div>
         </div>
         <div class="chat-input-area">
             <input type="text" id="userInput" placeholder="Type a message..." onkeydown="if(event.key === 'Enter') sendMessage()">
@@ -41,6 +83,34 @@
     </div>
 
     <script>
+        const API_URL = "http://localhost:8000/chat";
+
+        // Login management logic
+        function handleLogin() {
+            const userIn = document.getElementById("username").value.trim();
+            const passIn = document.getElementById("password").value.trim();
+            const errorElement = document.getElementById("loginError");
+
+            // Hardcoded credential check (Replace or link up with actual backend auth if needed)
+            if (userIn === "admin" && passIn === "password") {
+                errorElement.style.display = "none";
+                document.getElementById("loginView").classList.add("hidden");
+                document.getElementById("chatView").classList.remove("hidden");
+                document.getElementById("userInput").focus();
+            } else {
+                errorElement.style.display = "block";
+            }
+        }
+
+        function handleLogout() {
+            // Clear inputs and switch back to credentials screen
+            document.getElementById("username").value = "";
+            document.getElementById("password").value = "";
+            document.getElementById("chatView").classList.add("hidden");
+            document.getElementById("loginView").classList.remove("hidden");
+        }
+
+        // Chat stream communication
         async function sendMessage() {
             const input = document.getElementById("userInput");
             const chatBox = document.getElementById("chatBox");
@@ -48,7 +118,7 @@
             
             if (!query) return;
 
-            // 1. Instantly display user message to verify the code is running
+            // Render User bubble immediately 
             const userDiv = document.createElement("div");
             userDiv.className = "message user";
             userDiv.innerText = query;
@@ -58,13 +128,13 @@
             chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
-                const response = await fetch("http://localhost:8000/chat", {
+                const response = await fetch(API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ message: query })
                 });
 
-                if (!response.ok) throw new Error("404 or Server Error");
+                if (!response.ok) throw new Error("Endpoint returned an error status");
                 
                 const data = await response.json();
                 
@@ -76,7 +146,7 @@
                 const errorDiv = document.createElement("div");
                 errorDiv.className = "message lora";
                 errorDiv.style.color = "#ef4444";
-                errorDiv.innerText = "Error: Failed to connect to Lora server core engine.";
+                errorDiv.innerText = "Error: Failed to connect to local engine backend runtime.";
                 chatBox.appendChild(errorDiv);
             }
             chatBox.scrollTop = chatBox.scrollHeight;
