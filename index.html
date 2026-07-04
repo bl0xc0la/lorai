@@ -7,110 +7,116 @@
     <style>
         :root {
             --bg-main: #000000;
-            --bg-sidebar: #0d0d0d;
-            --border-color: #1a1a1a;
-            --text-main: #ececec;
-            --text-muted: #b4b4b4;
+            --bg-sidebar: #0a0a0c;
+            --border-color: #1a1a1e;
+            --text-main: #d1d1d6;
+            --text-muted: #8e8e93;
             --text-heading: #ffffff;
-            --btn-secondary: #1a1a1a;
-            --btn-secondary-border: #333333;
-            --user-bubble: #2f2f2f;
-            --input-bg: #1d1d1d;
+            --btn-secondary: #141416;
+            --btn-secondary-border: #2c2c2e;
+            --user-bubble: #1c1c1e;
+            --input-bg: #141416;
             --send-btn-bg: #ffffff;
             --send-btn-txt: #000000;
-            --code-bg: #1e1e1e;
-            --code-header: #2d2d2d;
-            --accent-color: #4285f4;
+            --code-bg: #0c0c0e;
+            --code-header: #1c1c1e;
+            --accent-color: #2f80ed;
         }
 
         [data-theme="light"] {
             --bg-main: #ffffff;
-            --bg-sidebar: #f3f3f3;
-            --border-color: #e5e5e5;
-            --text-main: #2f2f2f;
-            --text-muted: #666666;
+            --bg-sidebar: #f2f2f7;
+            --border-color: #e5e5ea;
+            --text-main: #3a3a3c;
+            --text-muted: #8e8e93;
             --text-heading: #000000;
-            --btn-secondary: #e5e5e5;
-            --btn-secondary-border: #cccccc;
-            --user-bubble: #f0f0f0;
-            --input-bg: #f4f4f4;
+            --btn-secondary: #e5e5ea;
+            --btn-secondary-border: #d1d1d6;
+            --user-bubble: #f2f2f7;
+            --input-bg: #e5e5ea;
             --send-btn-bg: #000000;
             --send-btn-txt: #ffffff;
-            --code-bg: #f8f8f8;
-            --code-header: #e1e1e1;
-            --accent-color: #1a73e8;
+            --code-bg: #f2f2f7;
+            --code-header: #e5e5ea;
+            --accent-color: #007aff;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; transition: background-color 0.2s, color 0.2s; }
-        body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
 
-        /* Security Gate & QR Container Layouts */
-        .auth-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); display:flex; align-items:center; justify-content:center; z-index:9999; }
-        .auth-card { background: #0d0d0d; border: 1px solid #222; padding: 32px; border-radius: 14px; width: 360px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
-        .auth-input { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 1.2rem; letter-spacing: 4px; text-align: center; margin: 18px 0; outline: none; }
-        .auth-btn { width: 100%; padding: 12px; background: #fff; color: #000; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; }
-        .qr-link { display: inline-block; color: var(--accent-color); font-size: 0.85rem; margin-top: 14px; text-decoration: none; cursor: pointer; }
-        .qr-container { display: none; margin-top: 16px; padding: 10px; background: white; border-radius: 8px; }
-        .qr-container img { width: 180px; height: 180px; display: block; margin: 0 auto; }
+        /* Security 2FA Overlay Frame */
+        .auth-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(20px); display:flex; align-items:center; justify-content:center; z-index:9999; }
+        .auth-card { background: var(--bg-sidebar); border: 1px solid var(--border-color); padding: 40px 32px; border-radius: 14px; width: 380px; text-align: center; }
+        .auth-input { width: 100%; padding: 14px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 14px; color: var(--text-heading); font-size: 1.4rem; letter-spacing: 6px; text-align: center; margin: 24px 0; outline: none; }
+        .auth-btn { width: 100%; padding: 14px; background: var(--send-btn-bg); color: var(--send-btn-txt); font-weight: 600; border: none; border-radius: 14px; cursor: pointer; font-size: 0.95rem; }
+        .qr-link { display: inline-block; color: var(--accent-color); font-size: 0.85rem; margin-top: 16px; text-decoration: none; cursor: pointer; font-weight: 500; }
+        .qr-container { display: none; margin-top: 20px; padding: 12px; background: #ffffff; border-radius: 14px; inline-size: max-content; margin-left: auto; margin-right: auto; }
+        .qr-container img { width: 180px; height: 180px; display: block; }
 
         /* Sidebar Elements */
-        .sidebar { width: 260px; background: var(--bg-sidebar); display: flex; flex-direction: column; padding: 16px; border-right: 1px solid var(--border-color); }
-        .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-        .logo-text { font-size: 1.1rem; font-weight: 600; color: var(--text-heading); }
-        .controls-group { display: flex; gap: 6px; }
-        .theme-toggle-btn, .new-session-btn { background: var(--btn-secondary); border: 1px solid var(--btn-secondary-border); color: var(--text-heading); padding: 6px; border-radius: 8px; cursor: pointer; }
+        .sidebar { width: 280px; background: var(--bg-sidebar); display: flex; flex-direction: column; padding: 24px 16px; border-right: 1px solid var(--border-color); }
+        .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; padding: 0 4px; }
+        .logo-text { font-size: 1.15rem; font-weight: 600; color: var(--text-heading); letter-spacing: -0.3px; }
+        .controls-group { display: flex; gap: 8px; }
         
-        .section-title { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin: 14px 0 8px 0; font-weight: 600; padding-left: 4px; letter-spacing: 0.5px; }
-        .model-switcher-tabs { display: flex; background: var(--input-bg); padding: 4px; border-radius: 14px; border: 1px solid var(--border-color); margin-bottom: 12px; }
-        .tab-btn { flex: 1; padding: 8px; border-radius: 10px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); }
-        .tab-btn.active { background: var(--send-btn-bg); color: var(--send-btn-txt); }
-        .selector-element { width: 100%; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 14px; padding: 10px; cursor: pointer; outline: none; font-size: 0.9rem; }
+        .theme-toggle-btn, .new-session-btn { background: var(--btn-secondary); border: 1px solid var(--btn-secondary-border); color: var(--text-heading); width: 34px; height: 34px; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+        .theme-toggle-btn:hover, .new-session-btn:hover { background: var(--input-bg); }
+        
+        .section-title { font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); margin: 24px 0 10px 0; font-weight: 700; padding-left: 6px; letter-spacing: 0.8px; }
+        
+        .model-switcher-tabs { display: flex; background: var(--input-bg); padding: 4px; border-radius: 14px; border: 1px solid var(--border-color); margin-bottom: 16px; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .tab-btn.active { background: var(--bg-main); color: var(--text-heading); border: 1px solid var(--border-color); }
 
-        .history-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 2px; margin-top: 10px; }
-        .history-item { padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; color: var(--text-muted); cursor: pointer; }
-        .history-item.active { background: var(--btn-secondary); color: var(--text-heading); }
+        .selector-element { width: 100%; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 14px; padding: 12px; cursor: pointer; outline: none; font-size: 0.9rem; -webkit-appearance: none; appearance: none; }
 
-        /* Main Workspace Content Canvas */
+        .history-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 4px; margin-top: 12px; }
+        .history-item { padding: 12px; border-radius: 14px; font-size: 0.9rem; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .history-item.active { background: var(--btn-secondary); color: var(--text-heading); font-weight: 500; }
+
+        /* Main Context Content Canvas */
         .main-content { flex: 1; display: flex; flex-direction: column; background: var(--bg-main); }
-        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; max-width: 760px; width: 100%; margin: 0 auto; }
-        .message { padding: 12px 16px; max-width: 90%; line-height: 1.6; font-size: 0.95rem; border-radius: 18px; color: var(--text-main); }
-        .user { align-self: flex-end; background: var(--user-bubble); border-bottom-right-radius: 4px; }
+        .chat-messages { flex: 1; padding: 32px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 32px; max-width: 800px; width: 100%; margin: 0 auto; }
+        .message { max-width: 85%; line-height: 1.6; font-size: 0.98rem; color: var(--text-main); display: flex; flex-direction: column; }
+        .user { align-self: flex-end; background: var(--user-bubble); padding: 14px 18px; border-radius: 14px; color: var(--text-heading); }
         .lora { align-self: flex-start; background: transparent; padding-left: 0; max-width: 100%; }
 
-        /* Thinking Pipeline Visualizer Component */
-        .thinking-dots { display: inline-flex; align-items: center; gap: 4px; padding: 8px 4px; }
-        .thinking-dots span { width: 8px; height: 8px; background-color: var(--text-muted); border-radius: 50%; animation: bounceThinkingDot 1.4s infinite ease-in-out both; }
+        /* Thinking Pipeline Visualizer */
+        .thinking-dots { display: inline-flex; align-items: center; gap: 5px; padding: 12px 4px; }
+        .thinking-dots span { width: 6px; height: 6px; background-color: var(--text-muted); border-radius: 50%; animation: bounceThinkingDot 1.4s infinite ease-in-out both; }
         .thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
         .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
         @keyframes bounceThinkingDot { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
 
-        /* Code Block Rendering Blocks */
-        .code-container { background: var(--code-bg); border-radius: 8px; margin: 12px 0; overflow: hidden; border: 1px solid var(--border-color); }
-        .code-header { background: var(--code-header); padding: 8px 16px; display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); }
-        .copy-btn { background: var(--user-bubble); color: var(--text-main); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; }
-        .code-container pre { padding: 16px; overflow-x: auto; }
-        .code-container code { font-family: monospace; color: #9cdcfe; font-size: 0.9rem; }
+        /* Code Block Rendering Components */
+        .code-container { background: var(--code-bg); border-radius: 14px; margin: 16px 0; overflow: hidden; border: 1px solid var(--border-color); }
+        .code-header { background: var(--code-header); padding: 10px 16px; display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color); font-weight: 500; }
+        .copy-btn { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 500; }
+        .copy-btn:hover { background: var(--btn-secondary); }
+        .code-container pre { padding: 18px; overflow-x: auto; margin: 0; }
+        .code-container code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; color: #a5d6ff; font-size: 0.9rem; }
 
-        .chat-input-area { padding: 0 20px 24px 20px; max-width: 760px; width: 100%; margin: 0 auto; }
-        .input-wrapper { display: flex; align-items: center; background: var(--input-bg); border-radius: 26px; padding: 6px 12px 6px 18px; gap: 12px; }
+        .chat-input-area { padding: 0 24px 32px 24px; max-width: 800px; width: 100%; margin: 0 auto; }
+        .input-wrapper { display: flex; align-items: center; background: var(--input-bg); border-radius: 14px; padding: 6px 8px 6px 18px; gap: 14px; border: 1px solid var(--border-color); }
         input[type="text"] { flex: 1; background: transparent; border: none; padding: 12px 0; color: var(--text-heading); font-size: 1rem; outline: none; }
-        .send-btn { background: var(--send-btn-bg); color: var(--send-btn-txt); border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        input[type="text"]::placeholder { color: var(--text-muted); }
+        .send-btn { background: var(--send-btn-bg); color: var(--send-btn-txt); border: none; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
     <div class="auth-overlay" id="authGate">
         <div class="auth-card">
-            <h2 style="color:#fff; margin-bottom: 8px;">2FA Verification</h2>
-            <p style="color:#888; font-size:0.9rem;">Input the sync token from your authenticator application.</p>
+            <h2 style="color: var(--text-heading); font-size: 1.4rem; font-weight: 600; margin-bottom: 8px;">Security Verification</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">Input the configuration token from your authenticator application.</p>
             
             <input type="text" id="totpField" class="auth-input" placeholder="000000" maxlength="6">
             <button class="auth-btn" onclick="submitTwoFactorToken()">Verify Identity</button>
-            <p id="authError" style="color:#ff3333; font-size:0.85rem; margin-top:12px; display:none;">Invalid verification code</p>
+            <p id="authError" style="color: #ff453a; font-size: 0.85rem; margin-top: 14px; display: none; font-weight: 500;">Invalid verification code</p>
             
-            <span class="qr-link" onclick="revealSetupQr()">Scan setup QR code instead</span>
+            <span class="qr-link" onclick="revealSetupQr()">Request authorization setup graphics</span>
             <div class="qr-container" id="qrContainer">
-                <img id="qrImg" src="" alt="2FA Registration Matrix">
+                <img id="qrImg" src="" alt="2FA Matrix">
             </div>
         </div>
     </div>
@@ -119,39 +125,44 @@
         <div class="sidebar-header">
             <span class="logo-text">Lora AI</span>
             <div class="controls-group">
-                <button class="theme-toggle-btn" onclick="toggleColorTheme()">🌓</button>
-                <button class="new-session-btn" onclick="clearActiveChat()">New</button>
+                <button class="theme-toggle-btn" onclick="toggleColorTheme()" title="Toggle Theme">&#x25D0;</button>
+                <button class="new-session-btn" onclick="clearActiveChat()" title="New Thread">&#x231C;</button>
             </div>
         </div>
 
         <div class="section-title">Model Tier</div>
         <div class="model-switcher-tabs">
-            <button id="tierSpeed" class="tab-btn active" onclick="switchModelTier('speed')">⚡ Speed</button>
-            <button id="tierPro" class="tab-btn" onclick="switchModelTier('pro')">✨ Pro</button>
+            <button id="tierSpeed" class="tab-btn active" onclick="switchModelTier('speed')">&#x26A1; Speed</button>
+            <button id="tierPro" class="tab-btn" onclick="switchModelTier('pro')">&#x2722; Pro</button>
         </div>
 
         <div class="section-title">System Core Mode</div>
-        <select id="systemModeSelector" class="selector-element" onchange="switchSystemMode()">
-            <option value="assistant">Standard Assistant</option>
-            <option value="developer">Advanced Code Engineer</option>
-            <option value="creative">Creative Context Engine</option>
-        </select>
+        <div style="position: relative; width: 100%;">
+            <select id="systemModeSelector" class="selector-element" onchange="switchSystemMode()">
+                <option value="assistant">Standard Assistant</option>
+                <option value="developer">Advanced Code Engineer</option>
+                <option value="creative">Creative Context Engine</option>
+            </select>
+            <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; font-size: 0.8rem;">&#x25BC;</span>
+        </div>
 
         <div class="section-title">Recent Chats</div>
         <ul class="history-list">
-            <li class="history-item active">Default Conversation Thread</li>
+            <li class="history-item active">
+                <span>&#x25A4;</span> Default Conversation Thread
+            </li>
         </ul>
     </div>
 
     <div class="main-content">
         <div class="chat-messages" id="chatBox">
-            <div class="message lora">Authentication clear. Lora AI active tier initialized. Ask anything!</div>
+            <div class="message lora">Authentication clear. Lora AI active tier initialized. Ask anything.</div>
         </div>
         
         <div class="chat-input-area">
             <div class="input-wrapper">
                 <input type="text" id="userInput" placeholder="Message Lora..." onkeydown="if(event.key === 'Enter') dispatchChatMessage()">
-                <button class="send-btn" onclick="dispatchChatMessage()">➔</button>
+                <button class="send-btn" onclick="dispatchChatMessage()">&#x279B;</button>
             </div>
         </div>
     </div>
@@ -186,7 +197,7 @@
         function revealSetupQr() {
             const container = document.getElementById("qrContainer");
             const img = document.getElementById("qrImg");
-            img.src = `${API_BASE}/setup-2fa?t=${new Date().getTime()}`; // Avoid browser aggressive cache
+            img.src = `${API_BASE}/setup-2fa?t=${new Date().getTime()}`;
             container.style.display = "block";
         }
 
@@ -227,7 +238,7 @@
                 const container = document.createElement("div");
                 container.className = "code-container";
                 container.innerHTML = `
-                    <div class="code-header"><span>${lang}</span><button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy', 2000)">Copy</button></div>
+                    <div class="code-header"><span>${lang}</span><button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied'; setTimeout(()=>this.innerText='Copy', 2000)">Copy</button></div>
                     <pre><code>${codeText}</code></pre>
                 `;
                 targetElement.appendChild(container);
@@ -287,7 +298,7 @@
                     chatBox.scrollTop = chatBox.scrollHeight;
                 }
             } catch (err) {
-                loraDiv.style.color = "#ff3333";
+                loraDiv.style.color = "#ff453a";
                 loraDiv.innerText = "Error linking to backend execution pipeline.";
             }
         }
