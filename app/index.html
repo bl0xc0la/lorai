@@ -158,6 +158,7 @@
     </div>
 
     <script>
+        // Synchronized with your live active ngrok address tunnel
         const API_BASE = "https://renewal-euphemism-relapsing.ngrok-free.dev";
         let activeModelTier = "speed";
         let activeSystemMode = "assistant";
@@ -288,30 +289,25 @@
             chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
-                const response = await fetch(`${API_BASE}/chat`, {
+                // Pointing strictly to your server's endpoint layout mapping structure
+                const response = await fetch(`${API_BASE}/api/generate`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
-                        message: query, 
-                        model_tier: activeModelTier, 
-                        system_mode: activeSystemMode 
+                        prompt: query, 
+                        model_choice: activeModelTier, 
+                        system_memory: `Mode: ${activeSystemMode}`
                     })
                 });
 
                 if (!response.ok) throw new Error();
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let accumulatedText = "";
-                let firstToken = false;
-
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) break;
-                    if (!firstToken) { loraDiv.innerHTML = ""; firstToken = true; }
-                    accumulatedText += decoder.decode(value, { stream: true });
-                    parseMarkdownAndRender(accumulatedText, loraDiv);
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }
+                
+                // Process JSON response structure payload from unified server.py
+                const data = await response.json();
+                loraDiv.innerHTML = "";
+                parseMarkdownAndRender(data.response, loraDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                
             } catch (err) {
                 loraDiv.style.color = "#ff453a";
                 loraDiv.innerText = "Error linking to backend execution pipeline.";
