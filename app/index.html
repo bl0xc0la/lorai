@@ -21,16 +21,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Geist Mono", monospace; }
         body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
 
-        /* Security Gate */
-        .auth-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(10, 10, 11, 0.99); display:flex; align-items:center; justify-content:center; z-index:9999; }
-        .auth-card { background: var(--bg-sidebar); border: 1px solid var(--border-color); padding: 40px; border-radius: 12px; width: 360px; text-align: center; }
-        .auth-input { width: 100%; padding: 14px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-heading); font-size: 1.5rem; letter-spacing: 4px; text-align: center; margin: 24px 0; outline: none; }
-        .auth-btn { width: 100%; padding: 14px; background: #ffffff; color: #000000; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
-        .qr-link { display: inline-block; color: var(--text-muted); font-size: 0.75rem; margin-top: 16px; text-decoration: none; cursor: pointer; }
-        .qr-link:hover { color: var(--text-main); }
-        .qr-container { display: none; margin-top: 20px; padding: 12px; background: #ffffff; border-radius: 8px; width: 150px; height: 150px; margin: 20px auto 0 auto; }
-        .qr-container img { width: 100%; height: 100%; }
-
         /* Minimal Sidebar */
         .sidebar { width: 240px; background: var(--bg-sidebar); display: flex; flex-direction: column; padding: 24px 16px; border-right: 1px solid var(--border-color); }
         .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; padding: 0 4px; }
@@ -108,18 +98,6 @@
 </head>
 <body>
 
-    <div class="auth-overlay" id="authGate">
-        <div class="auth-card">
-            <h2 style="color: var(--text-heading); font-size: 1rem; font-weight: 600; margin-bottom: 6px;">Pipeline Security</h2>
-            <p style="color: var(--text-muted); font-size: 0.75rem;">Input verification token hash to execute server pipeline.</p>
-            <input type="text" id="totpField" class="auth-input" placeholder="000000" maxlength="6">
-            <button class="auth-btn" onclick="submitTwoFactorToken()">Verify Identity</button>
-            <p id="authError" style="color: #ff453a; font-size: 0.75rem; margin-top: 14px; display: none;">Invalid verification token payload.</p>
-            <span class="qr-link" onclick="revealSetupQr()">Generate registration secret seed URI</span>
-            <div class="qr-container" id="qrContainer"><img id="qrImg" src="" alt="2FA Matrix"></div>
-        </div>
-    </div>
-
     <div class="sidebar">
         <div class="sidebar-header">
             <span class="logo-text">Lora AI</span>
@@ -171,7 +149,7 @@
         
         <div class="chat-input-area">
             <div class="input-wrapper">
-                <input type="text" id="userInput" placeholder="Ask Lora..." onkeydown="if(event.key === 'Enter') dispatchChatMessage()">
+                <input type="text" id="userInput" placeholder="Ask Lora..." onkeydown="if(event.key === 'Enter') dispatchChatMessage()" autofocus>
                 <button class="send-btn" onclick="dispatchChatMessage()">
                     <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 </button>
@@ -183,29 +161,6 @@
         const API_BASE = "https://renewal-euphemism-relapsing.ngrok-free.dev";
         let activeModelTier = "speed";
         let activeSystemMode = "assistant";
-
-        async function submitTwoFactorToken() {
-            const tokenVal = document.getElementById("totpField").value.trim();
-            const errLabel = document.getElementById("authError");
-            try {
-                const res = await fetch(`${API_BASE}/verify-2fa`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ token: tokenVal })
-                });
-                if(res.ok) {
-                    document.getElementById("authGate").style.display = "none";
-                    document.getElementById("userInput").focus();
-                } else { throw new Error(); }
-            } catch(e) { errLabel.style.display = "block"; }
-        }
-
-        function revealSetupQr() {
-            const container = document.getElementById("qrContainer");
-            const img = document.getElementById("qrImg");
-            img.src = `${API_BASE}/setup-2fa?t=${new Date().getTime()}`;
-            container.style.display = "block";
-        }
 
         function switchModelTier(tier) {
             activeModelTier = tier;
@@ -248,7 +203,6 @@
             let thinkingText = "";
             let remainingText = text;
             
-            // Check for explicit thinking matrix logs
             const thinkMatch = text.match(/<thinking>([\s\S]*?)<\/thinking>/);
             if (thinkMatch) {
                 thinkingText = thinkMatch[1];
@@ -266,7 +220,6 @@
                 targetElement.appendChild(thinkDiv);
             }
 
-            // Check if backend returned pure custom base64 image data string
             if (remainingText.startsWith("IMAGE_DATA:")) {
                 const b64Raw = remainingText.replace("IMAGE_DATA:", "").trim();
                 if(b64Raw.length > 50) {
@@ -287,7 +240,6 @@
                 }
             }
 
-            // Standard text parser fallback
             const codeBlockRegex = /```([a-zA-Z0-9+#-]+)?([\s\S]*?)```/g;
             let lastIndex = 0;
             let match;
