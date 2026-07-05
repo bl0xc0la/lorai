@@ -158,7 +158,6 @@
     </div>
 
     <script>
-        // Synchronized with your live active ngrok address tunnel
         const API_BASE = "https://renewal-euphemism-relapsing.ngrok-free.dev";
         let activeModelTier = "speed";
         let activeSystemMode = "assistant";
@@ -289,23 +288,30 @@
             chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
-                // Pointing strictly to your server's endpoint layout mapping structure
-                const response = await fetch(`${API_BASE}/api/generate`, {
+                // Sends request directly to the /chat endpoint using fields the server understands
+                const response = await fetch(`${API_BASE}/chat`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "ngrok-skip-browser-warning": "true"  // Bypasses the ngrok warning gate screen
+                    },
                     body: JSON.stringify({ 
-                        prompt: query, 
-                        model_choice: activeModelTier, 
-                        system_memory: `Mode: ${activeSystemMode}`
+                        message: query, 
+                        model_tier: activeModelTier, 
+                        system_mode: activeSystemMode 
                     })
                 });
 
                 if (!response.ok) throw new Error();
                 
-                // Process JSON response structure payload from unified server.py
-                const data = await response.json();
+                // Read response data
+                const textOutput = await response.json();
                 loraDiv.innerHTML = "";
-                parseMarkdownAndRender(data.response, loraDiv);
+                
+                // Support both structural formats: clean text string or mapped object
+                const parsedResult = (typeof textOutput === 'object' && textOutput.response) ? textOutput.response : textOutput;
+                
+                parseMarkdownAndRender(parsedResult, loraDiv);
                 chatBox.scrollTop = chatBox.scrollHeight;
                 
             } catch (err) {
