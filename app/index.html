@@ -16,6 +16,7 @@
             --btn-secondary: #1c1c1f;
             --input-bg: #141416;
             --code-bg: #050506;
+            --accent: #ffffff;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Geist Mono", monospace; }
@@ -26,40 +27,37 @@
         .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; padding: 0 4px; }
         .logo-text { font-size: 0.95rem; font-weight: 600; color: var(--text-heading); letter-spacing: -0.3px; }
         
-        .new-session-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; }
-        .new-session-btn:hover { background: var(--btn-secondary); }
+        .new-session-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; }
+        .new-session-btn:hover { background: var(--btn-secondary); color: var(--text-heading); }
         
         .section-title { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); margin: 24px 0 8px 4px; font-weight: 700; letter-spacing: 1px; }
         
         .model-switcher-tabs { display: flex; flex-direction: column; gap: 4px; }
-        .tab-btn { width: 100%; text-align: left; padding: 10px 12px; border-radius: 8px; border: none; font-size: 0.8rem; cursor: pointer; background: transparent; color: var(--text-main); display: flex; align-items: center; gap: 10px; transition: background 0.1s; }
+        .tab-btn { width: 100%; text-align: left; padding: 10px 12px; border-radius: 8px; border: none; font-size: 0.8rem; cursor: pointer; background: transparent; color: var(--text-main); display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; }
         .tab-btn:hover { background: rgba(255,255,255,0.02); }
         .tab-btn.active { background: var(--btn-secondary); color: var(--text-heading); font-weight: 500; }
         .tab-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; }
 
         .selector-wrapper { position: relative; width: 100%; }
-        .selector-element { width: 100%; background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px; cursor: pointer; outline: none; font-size: 0.8rem; appearance: none; -webkit-appearance: none; }
+        .selector-element { width: 100%; background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px; cursor: pointer; outline: none; font-size: 0.8rem; appearance: none; -webkit-appearance: none; transition: border-color 0.2s ease; }
+        .selector-element:hover { border-color: #333336; }
         .selector-wrapper svg { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; fill: none; stroke: var(--text-muted); stroke-width: 1.5; pointer-events: none; }
-
-        .history-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 4px; }
-        .history-item { padding: 10px 12px; border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 10px; }
-        .history-item.active { color: var(--text-main); background: rgba(255,255,255,0.01); }
-        .history-item svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; }
 
         /* Clean Chat Canvas */
         .main-content { flex: 1; display: flex; flex-direction: column; background: var(--bg-main); }
-        .chat-messages { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 36px; max-width: 760px; width: 100%; margin: 0 auto; }
+        .chat-messages { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 36px; max-width: 760px; width: 100%; margin: 0 auto; scroll-behavior: smooth; }
         
-        .message { max-width: 100%; line-height: 1.7; font-size: 0.9rem; color: var(--text-main); display: flex; flex-direction: column; animation: fadeIn 0.15s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .message { max-width: 100%; line-height: 1.7; font-size: 0.9rem; color: var(--text-main); display: flex; flex-direction: column; animation: fadeIn 0.2s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
         
         .user { color: var(--text-heading); border-left: 2px solid var(--text-muted); padding-left: 16px; margin-left: 2px; }
         .lora { width: 100%; }
 
         /* Foldable Thinking Logs */
-        .thinking-block { background: rgba(255, 255, 255, 0.01); border-left: 1px solid var(--border-color); padding: 8px 16px; margin-bottom: 16px; font-size: 0.8rem; border-radius: 0 4px 4px 0; }
-        .thinking-header { cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--text-muted); user-select: none; }
-        .thinking-header svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.5; transform: rotate(90deg); transition: transform 0.1s; }
+        .thinking-block { background: rgba(255, 255, 255, 0.02); border-left: 1px solid var(--border-color); padding: 8px 16px; margin-bottom: 16px; font-size: 0.8rem; border-radius: 0 4px 4px 0; }
+        .thinking-header { cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--text-muted); user-select: none; transition: color 0.2s; }
+        .thinking-header:hover { color: var(--text-main); }
+        .thinking-header svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.5; transform: rotate(90deg); transition: transform 0.2s; }
         .thinking-block.collapsed .thinking-header svg { transform: rotate(0deg); }
         .thinking-block.collapsed .thinking-body { display: none; }
         .thinking-body { padding-top: 8px; line-height: 1.6; color: var(--text-muted); }
@@ -70,30 +68,23 @@
         .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
         @keyframes bounceDot { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
 
-        /* Rendered Image Layout Framework */
-        .generated-image-container { margin: 16px 0; max-width: 100%; width: 512px; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: #000; position: relative; }
-        .generated-image-container img { width: 100%; height: auto; display: block; }
-        .image-action-bar { background: #0b0b0d; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); font-size: 0.75rem; }
-        .download-btn { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-        .download-btn:hover { background: var(--btn-secondary); }
-        .download-btn svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; }
-
         /* Unified Code Blocks */
         .code-container { background: var(--code-bg); border-radius: 8px; margin: 18px 0; overflow: hidden; border: 1px solid var(--border-color); }
         .code-header { background: #0b0b0d; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
-        .copy-btn { background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.7rem; }
-        .copy-btn:hover { color: var(--text-main); }
+        .copy-btn { background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.7rem; transition: all 0.2s; }
+        .copy-btn:hover { color: var(--text-heading); border-color: var(--text-muted); }
         .code-container pre { padding: 16px; overflow-x: auto; margin: 0; }
         .code-container code { font-family: "Geist Mono", monospace; color: #e1e1e6; font-size: 0.85rem; }
 
-        /* Floating Input Layout */
-        .chat-input-area { padding: 0 40px 40px 40px; max-width: 760px; width: 100%; margin: 0 auto; }
-        .input-wrapper { display: flex; align-items: center; background: var(--input-bg); border-radius: 24px; padding: 8px 16px 8px 20px; gap: 14px; border: 1px solid var(--border-color); }
+        /* Floating Input Layout (Glassmorphism touches) */
+        .chat-input-area { padding: 0 40px 40px 40px; max-width: 760px; width: 100%; margin: 0 auto; position: relative; z-index: 10; }
+        .input-wrapper { display: flex; align-items: center; background: rgba(20, 20, 22, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 24px; padding: 8px 16px 8px 20px; gap: 14px; border: 1px solid var(--border-color); box-shadow: 0 4px 24px rgba(0,0,0,0.2); transition: border-color 0.3s ease; }
+        .input-wrapper:focus-within { border-color: #333336; }
         input[type="text"] { flex: 1; background: transparent; border: none; padding: 8px 0; color: var(--text-heading); font-size: 0.9rem; outline: none; }
         input[type="text"]::placeholder { color: var(--text-muted); }
-        .send-btn { background: transparent; color: var(--text-muted); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; transition: color 0.1s; }
-        .send-btn:hover { color: var(--text-heading); }
-        .send-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+        .send-btn { background: var(--accent); color: #000; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; width: 28px; height: 28px; transition: transform 0.1s ease; }
+        .send-btn:active { transform: scale(0.9); }
+        .send-btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.5; }
     </style>
 </head>
 <body>
@@ -107,7 +98,7 @@
             </button>
         </div>
 
-        <div class="section-title">Model Context</div>
+        <div class="section-title">Model Core</div>
         <div class="model-switcher-tabs">
             <button id="tierSpeed" class="tab-btn active" onclick="switchModelTier('speed')">
                 <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
@@ -132,19 +123,11 @@
             </select>
             <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
-
-        <div class="section-title">History</div>
-        <ul class="history-list">
-            <li class="history-item active">
-                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                Active Session
-            </li>
-        </ul>
     </div>
 
     <div class="main-content">
         <div class="chat-messages" id="chatBox">
-            <div class="message lora">Workspace ready. Provide query parameter targets.</div>
+            <div class="message lora">Workspace ready. Awaiting parameters.</div>
         </div>
         
         <div class="chat-input-area">
@@ -158,7 +141,9 @@
     </div>
 
     <script>
+        // Update this URL if ngrok restarts and gives you a new forwarding address
         const API_BASE = "https://renewal-euphemism-relapsing.ngrok-free.dev";
+        
         let activeModelTier = "speed";
         let activeSystemMode = "assistant";
 
@@ -169,11 +154,8 @@
             document.getElementById("tierImages").classList.toggle("active", tier === "images");
             
             const input = document.getElementById("userInput");
-            if(tier === "images") {
-                input.placeholder = "Describe the image to synthesize...";
-            } else {
-                input.placeholder = "Ask Lora...";
-            }
+            input.placeholder = tier === "images" ? "Describe the image to synthesize..." : "Ask Lora...";
+            input.focus();
         }
 
         function switchSystemMode() {
@@ -188,28 +170,18 @@
             headerElement.parentElement.classList.toggle("collapsed");
         }
 
-        function triggerDownload(b64Data) {
-            const link = document.createElement('a');
-            link.href = `data:image/png;base64,${b64Data}`;
-            link.download = `lora-output-${Date.now()}.png`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
         function parseMarkdownAndRender(text, targetElement) {
             targetElement.innerHTML = "";
+            let remainingText = text || "";
             
-            let thinkingText = "";
-            let remainingText = text;
-            
+            // Extract Thinking Blocks
             const thinkMatch = text.match(/<thinking>([\s\S]*?)<\/thinking>/);
             if (thinkMatch) {
-                thinkingText = thinkMatch[1];
+                const thinkingText = thinkMatch[1];
                 remainingText = text.replace(/<thinking>[\s\S]*?<\/thinking>/, "");
                 
                 const thinkDiv = document.createElement("div");
-                thinkDiv.className = "thinking-block";
+                thinkDiv.className = "thinking-block collapsed"; // Default collapsed to save space
                 thinkDiv.innerHTML = `
                     <div class="thinking-header" onclick="toggleThinking(this)">
                         <svg viewBox="0 0 24 24" width="10" height="10"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -220,51 +192,39 @@
                 targetElement.appendChild(thinkDiv);
             }
 
-            if (remainingText.startsWith("IMAGE_DATA:")) {
-                const b64Raw = remainingText.replace("IMAGE_DATA:", "").trim();
-                if(b64Raw.length > 50) {
-                    const imgContainer = document.createElement("div");
-                    imgContainer.className = "generated-image-container";
-                    imgContainer.innerHTML = `
-                        <img src="data:image/png;base64,${b64Raw}" alt="Generated Media">
-                        <div class="image-action-bar">
-                            <span>PNG Matrix Array</span>
-                            <button class="download-btn" onclick="triggerDownload('${b64Raw}')">
-                                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                                Download
-                            </button>
-                        </div>
-                    `;
-                    targetElement.appendChild(imgContainer);
-                    return;
-                }
-            }
-
-            const codeBlockRegex = /```([a-zA-Z0-9+#-]+)?([\s\S]*?)```/g;
+            // Extract Code Blocks
+            const codeBlockRegex = /```([a-zA-Z0-9+#-]+)?\n([\s\S]*?)```/g;
             let lastIndex = 0;
             let match;
 
             while ((match = codeBlockRegex.exec(remainingText)) !== null) {
+                // Text before code block
                 if (match.index > lastIndex) {
                     const txtSpan = document.createElement("span");
                     txtSpan.innerText = remainingText.substring(lastIndex, match.index);
                     targetElement.appendChild(txtSpan);
                 }
+                
+                // Code block rendering
                 const lang = match[1] || "code";
                 const codeText = match[2].trim();
                 const container = document.createElement("div");
                 container.className = "code-container";
                 container.innerHTML = `
-                    <div class="code-header"><span>${lang}</span><button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied'; setTimeout(()=>this.innerText='Copy', 2000)">Copy</button></div>
+                    <div class="code-header">
+                        <span>${lang}</span>
+                        <button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy', 2000)">Copy</button>
+                    </div>
                     <pre><code>${codeText}</code></pre>
                 `;
                 targetElement.appendChild(container);
                 lastIndex = codeBlockRegex.lastIndex;
             }
 
+            // Append remaining text
             if (lastIndex < remainingText.length) {
                 const txtSpan = document.createElement("span");
-                txtSpan.innerText = remainingText.substring(lastIndex);
+                txtSpan.innerHTML = remainingText.substring(lastIndex).replace(/\n/g, "<br>");
                 targetElement.appendChild(txtSpan);
             }
         }
@@ -275,12 +235,14 @@
             const query = input.value.trim();
             if (!query) return;
 
+            // Render User Message
             const userDiv = document.createElement("div");
             userDiv.className = "message user";
             userDiv.innerText = query;
             chatBox.appendChild(userDiv);
             input.value = "";
             
+            // Render Lora Loading State
             const loraDiv = document.createElement("div");
             loraDiv.className = "message lora";
             loraDiv.innerHTML = '<div class="thinking-dots"><span></span><span></span><span></span></div>';
@@ -288,35 +250,34 @@
             chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
-                // Sends request directly to the /chat endpoint using fields the server understands
-                const response = await fetch(`${API_BASE}/chat`, {
+                // Targets your robust /api/generate endpoint mapping perfectly to GenerationRequest
+                const response = await fetch(`${API_BASE}/api/generate`, {
                     method: "POST",
                     headers: { 
                         "Content-Type": "application/json",
-                        "ngrok-skip-browser-warning": "true"  // Bypasses the ngrok warning gate screen
+                        "ngrok-skip-browser-warning": "true" 
                     },
                     body: JSON.stringify({ 
-                        message: query, 
-                        model_tier: activeModelTier, 
-                        system_mode: activeSystemMode 
+                        prompt: query, 
+                        model_choice: activeModelTier, 
+                        system_memory: `Mode: ${activeSystemMode}` 
                     })
                 });
 
-                if (!response.ok) throw new Error();
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.detail || "Execution pipeline severed.");
+                }
                 
-                // Read response data
-                const textOutput = await response.json();
+                const data = await response.json();
                 loraDiv.innerHTML = "";
-                
-                // Support both structural formats: clean text string or mapped object
-                const parsedResult = (typeof textOutput === 'object' && textOutput.response) ? textOutput.response : textOutput;
-                
-                parseMarkdownAndRender(parsedResult, loraDiv);
-                chatBox.scrollTop = chatBox.scrollHeight;
+                parseMarkdownAndRender(data.response, loraDiv);
                 
             } catch (err) {
                 loraDiv.style.color = "#ff453a";
-                loraDiv.innerText = "Error linking to backend execution pipeline.";
+                loraDiv.innerText = `Error: ${err.message}`;
+            } finally {
+                chatBox.scrollTop = chatBox.scrollHeight;
             }
         }
     </script>
