@@ -203,8 +203,10 @@
                         <svg viewBox="0 0 24 24" width="10" height="10"><polyline points="9 18 15 12 9 6"></polyline></svg>
                         <span>Thinking Matrix</span>
                     </div>
-                    <div class="thinking-body">${thinkingText}</div>
+                    <div class="thinking-body"></div>
                 `;
+                // Safely insert thinking text as text node
+                thinkDiv.querySelector(".thinking-body").innerText = thinkingText;
                 targetElement.appendChild(thinkDiv);
             }
 
@@ -216,7 +218,10 @@
             while ((match = codeBlockRegex.exec(remainingText)) !== null) {
                 if (match.index > lastIndex) {
                     const txtSpan = document.createElement("span");
-                    txtSpan.innerText = remainingText.substring(lastIndex, match.index);
+                    // Use textContent for text outside code blocks to prevent layout breakages
+                    txtSpan.textContent = remainingText.substring(lastIndex, match.index);
+                    // Replace line breaks with real breaks for rendering layout
+                    txtSpan.innerHTML = txtSpan.innerHTML.replace(/\n/g, "<br>");
                     targetElement.appendChild(txtSpan);
                 }
                 
@@ -229,15 +234,18 @@
                         <span>${lang}</span>
                         <button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.innerText); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy', 2000)">Copy</button>
                     </div>
-                    <pre><code>${codeText}</code></pre>
+                    <pre><code></code></pre>
                 `;
+                // Safe text assignment ensures HTML strings appear as plain code text
+                container.querySelector("code").textContent = codeText;
                 targetElement.appendChild(container);
                 lastIndex = codeBlockRegex.lastIndex;
             }
 
             if (lastIndex < remainingText.length) {
                 const txtSpan = document.createElement("span");
-                txtSpan.innerHTML = remainingText.substring(lastIndex).replace(/\n/g, "<br>");
+                txtSpan.textContent = remainingText.substring(lastIndex);
+                txtSpan.innerHTML = txtSpan.innerHTML.replace(/\n/g, "<br>");
                 targetElement.appendChild(txtSpan);
             }
         }
