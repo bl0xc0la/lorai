@@ -18,6 +18,8 @@
             --text-muted: #515156;
             --text-heading: #ffffff;
             --btn-secondary: #1c1c1f;
+            --btn-danger: #2a1a1a;
+            --text-danger: #ff453a;
             --input-bg: #141416;
             --code-bg: #050506;
             --accent: #ffffff;
@@ -46,6 +48,12 @@
         .selector-element { width: 100%; background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px; cursor: pointer; outline: none; font-size: 0.8rem; appearance: none; -webkit-appearance: none; transition: border-color 0.2s ease; }
         .selector-element:hover { border-color: #333336; }
         .selector-wrapper svg { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; fill: none; stroke: var(--text-muted); stroke-width: 1.5; pointer-events: none; }
+
+        /* Sidebar Actions Utilities */
+        .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+        .delete-btn { width: 100%; text-align: left; padding: 10px 12px; border-radius: 8px; border: 1px solid transparent; font-size: 0.8rem; cursor: pointer; background: transparent; color: var(--text-muted); display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; }
+        .delete-btn:hover { background: var(--btn-danger); color: var(--text-danger); border-color: rgba(255, 69, 58, 0.2); }
+        .delete-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; }
 
         /* Clean Chat Canvas */
         .main-content { flex: 1; display: flex; flex-direction: column; background: var(--bg-main); }
@@ -80,7 +88,7 @@
         .code-container pre { padding: 16px; overflow-x: auto; margin: 0; }
         .code-container code { font-family: "Geist Mono", monospace; color: #e1e1e6; font-size: 0.85rem; }
 
-        /* Floating Input Layout (Glassmorphism touches) */
+        /* Floating Input Layout */
         .chat-input-area { padding: 0 40px 40px 40px; max-width: 760px; width: 100%; margin: 0 auto; position: relative; z-index: 10; }
         .input-wrapper { display: flex; align-items: center; background: rgba(20, 20, 22, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 24px; padding: 8px 16px 8px 20px; gap: 14px; border: 1px solid var(--border-color); box-shadow: 0 4px 24px rgba(0,0,0,0.2); transition: border-color 0.3s ease; }
         .input-wrapper:focus-within { border-color: #333336; }
@@ -104,17 +112,9 @@
 
         <div class="section-title">Model Core</div>
         <div class="model-switcher-tabs">
-            <button id="tierSpeed" class="tab-btn active" onclick="switchModelTier('speed')">
-                <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                Lora Speed
-            </button>
-            <button id="tierPro" class="tab-btn" onclick="switchModelTier('pro')">
+            <button id="tierPro" class="tab-btn active" onclick="switchModelTier('pro')">
                 <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
                 Lora Pro
-            </button>
-            <button id="tierImages" class="tab-btn" onclick="switchModelTier('images')">
-                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                Lora Images
             </button>
         </div>
 
@@ -126,6 +126,13 @@
                 <option value="creative">Creative Matrix</option>
             </select>
             <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="delete-btn" onclick="deleteChatHistory()">
+                <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                Delete Chat
+            </button>
         </div>
     </div>
 
@@ -145,20 +152,20 @@
     </div>
 
     <script>
-        // Update this URL if ngrok restarts and gives you a new forwarding address
         const API_BASE = "https://renewal-euphemism-relapsing.ngrok-free.dev";
         
-        let activeModelTier = "speed";
+        let activeModelTier = "pro";
         let activeSystemMode = "assistant";
+        
+        // State tracking local chat history context array
+        let chatHistory = [];
 
         function switchModelTier(tier) {
             activeModelTier = tier;
-            document.getElementById("tierSpeed").classList.toggle("active", tier === "speed");
             document.getElementById("tierPro").classList.toggle("active", tier === "pro");
-            document.getElementById("tierImages").classList.toggle("active", tier === "images");
             
             const input = document.getElementById("userInput");
-            input.placeholder = tier === "images" ? "Describe the image to synthesize..." : "Ask Lora...";
+            input.placeholder = "Ask Lora...";
             input.focus();
         }
 
@@ -168,6 +175,11 @@
 
         function clearActiveChat() {
             document.getElementById("chatBox").innerHTML = '<div class="message lora">Session context flushed.</div>';
+        }
+
+        function deleteChatHistory() {
+            chatHistory = []; // Reset historical state
+            document.getElementById("chatBox").innerHTML = '<div class="message lora" style="color: var(--text-muted)">Conversation history deleted.</div>';
         }
 
         function toggleThinking(headerElement) {
@@ -185,7 +197,7 @@
                 remainingText = text.replace(/<thinking>[\s\S]*?<\/thinking>/, "");
                 
                 const thinkDiv = document.createElement("div");
-                thinkDiv.className = "thinking-block collapsed"; // Default collapsed to save space
+                thinkDiv.className = "thinking-block collapsed"; 
                 thinkDiv.innerHTML = `
                     <div class="thinking-header" onclick="toggleThinking(this)">
                         <svg viewBox="0 0 24 24" width="10" height="10"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -202,14 +214,12 @@
             let match;
 
             while ((match = codeBlockRegex.exec(remainingText)) !== null) {
-                // Text before code block
                 if (match.index > lastIndex) {
                     const txtSpan = document.createElement("span");
                     txtSpan.innerText = remainingText.substring(lastIndex, match.index);
                     targetElement.appendChild(txtSpan);
                 }
                 
-                // Code block rendering
                 const lang = match[1] || "code";
                 const codeText = match[2].trim();
                 const container = document.createElement("div");
@@ -225,7 +235,6 @@
                 lastIndex = codeBlockRegex.lastIndex;
             }
 
-            // Append remaining text
             if (lastIndex < remainingText.length) {
                 const txtSpan = document.createElement("span");
                 txtSpan.innerHTML = remainingText.substring(lastIndex).replace(/\n/g, "<br>");
@@ -246,15 +255,17 @@
             chatBox.appendChild(userDiv);
             input.value = "";
             
-            // Render Lora Loading State
+            // Render Lora Loading State Placeholder
             const loraDiv = document.createElement("div");
             loraDiv.className = "message lora";
             loraDiv.innerHTML = '<div class="thinking-dots"><span></span><span></span><span></span></div>';
             chatBox.appendChild(loraDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
 
+            // Track user input in the history array
+            chatHistory.push({ role: "user", content: query });
+
             try {
-                // Targets your robust /api/generate endpoint mapping perfectly to GenerationRequest
                 const response = await fetch(`${API_BASE}/api/generate`, {
                     method: "POST",
                     headers: { 
@@ -264,18 +275,37 @@
                     body: JSON.stringify({ 
                         prompt: query, 
                         model_choice: activeModelTier, 
-                        system_memory: `Mode: ${activeSystemMode}` 
+                        system_memory: `Mode: ${activeSystemMode}`,
+                        history: chatHistory // Optional pipeline fallback to pass history context state
                     })
                 });
 
                 if (!response.ok) {
-                    const errData = await response.json();
+                    const errData = await response.json().catch(() => ({}));
                     throw new Error(errData.detail || "Execution pipeline severed.");
                 }
                 
-                const data = await response.json();
-                loraDiv.innerHTML = "";
-                parseMarkdownAndRender(data.response, loraDiv);
+                loraDiv.innerHTML = ""; // Clear loader configuration elements
+                
+                // Establish Streaming Reader
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let accumulatedTokens = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value, { stream: true });
+                    accumulatedTokens += chunk;
+                    
+                    // Render streaming content progressively into the UI DOM node
+                    parseMarkdownAndRender(accumulatedTokens, loraDiv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+
+                // Append finalized stream into stateful response tracking engine
+                chatHistory.push({ role: "assistant", content: accumulatedTokens });
                 
             } catch (err) {
                 loraDiv.style.color = "#ff453a";
