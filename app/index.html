@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lora AI</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,10 +26,12 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Geist Mono", monospace; }
-        body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
+        
+        /* Use dvh to fix iOS Safari keyboard/address bar issues */
+        body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100dvh; overflow: hidden; -webkit-font-smoothing: antialiased; }
 
         /* Minimal Sidebar */
-        .sidebar { width: 240px; background: var(--bg-sidebar); display: flex; flex-direction: column; padding: 24px 16px; border-right: 1px solid var(--border-color); }
+        .sidebar { width: 240px; background: var(--bg-sidebar); display: flex; flex-direction: column; padding: 24px 16px; border-right: 1px solid var(--border-color); z-index: 100; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; padding: 0 4px; }
         .logo-text { font-size: 0.95rem; font-weight: 600; color: var(--text-heading); letter-spacing: -0.3px; }
         
@@ -49,17 +51,24 @@
         .selector-element:hover { border-color: #333336; }
         .selector-wrapper svg { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; fill: none; stroke: var(--text-muted); stroke-width: 1.5; pointer-events: none; }
 
-        /* Sidebar Actions Utilities */
         .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
         .delete-btn { width: 100%; text-align: left; padding: 10px 12px; border-radius: 8px; border: 1px solid transparent; font-size: 0.8rem; cursor: pointer; background: transparent; color: var(--text-muted); display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; }
         .delete-btn:hover { background: var(--btn-danger); color: var(--text-danger); border-color: rgba(255, 69, 58, 0.2); }
         .delete-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; }
 
+        /* Mobile Specific Elements (Hidden on Desktop) */
+        .mobile-header { display: none; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-sidebar); border-bottom: 1px solid var(--border-color); z-index: 90; }
+        .mobile-header .logo-text { font-size: 0.9rem; }
+        .icon-btn { background: transparent; border: none; color: var(--text-main); display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; }
+        .icon-btn:hover { background: var(--btn-secondary); color: var(--text-heading); }
+        .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); z-index: 95; opacity: 0; transition: opacity 0.3s ease; }
+
         /* Clean Chat Canvas */
-        .main-content { flex: 1; display: flex; flex-direction: column; background: var(--bg-main); }
+        .main-content { flex: 1; display: flex; flex-direction: column; background: var(--bg-main); width: 100%; }
         .chat-messages { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 36px; max-width: 760px; width: 100%; margin: 0 auto; scroll-behavior: smooth; }
         
-        .message { max-width: 100%; line-height: 1.7; font-size: 0.9rem; color: var(--text-main); display: flex; flex-direction: column; animation: fadeIn 0.2s ease-out forwards; }
+        .message { max-width: 100%; line-height: 1.7; font-size: 0.9rem; color: var(--text-main); display: flex; flex-direction: column; animation: fadeIn 0.2s ease-out forwards; word-wrap: break-word; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
         
         .user { color: var(--text-heading); border-left: 2px solid var(--text-muted); padding-left: 16px; margin-left: 2px; }
@@ -81,27 +90,53 @@
         @keyframes bounceDot { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
 
         /* Unified Code Blocks */
-        .code-container { background: var(--code-bg); border-radius: 8px; margin: 18px 0; overflow: hidden; border: 1px solid var(--border-color); }
+        .code-container { background: var(--code-bg); border-radius: 8px; margin: 18px 0; overflow: hidden; border: 1px solid var(--border-color); max-width: 100%; }
         .code-header { background: #0b0b0d; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
         .copy-btn { background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.7rem; transition: all 0.2s; }
         .copy-btn:hover { color: var(--text-heading); border-color: var(--text-muted); }
-        .code-container pre { padding: 16px; overflow-x: auto; margin: 0; }
+        .code-container pre { padding: 16px; overflow-x: auto; margin: 0; max-width: 100%; }
         .code-container code { font-family: "Geist Mono", monospace; color: #e1e1e6; font-size: 0.85rem; }
 
         /* Floating Input Layout */
         .chat-input-area { padding: 0 40px 40px 40px; max-width: 760px; width: 100%; margin: 0 auto; position: relative; z-index: 10; }
         .input-wrapper { display: flex; align-items: center; background: rgba(20, 20, 22, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 24px; padding: 8px 16px 8px 20px; gap: 14px; border: 1px solid var(--border-color); box-shadow: 0 4px 24px rgba(0,0,0,0.2); transition: border-color 0.3s ease; }
         .input-wrapper:focus-within { border-color: #333336; }
-        input[type="text"] { flex: 1; background: transparent; border: none; padding: 8px 0; color: var(--text-heading); font-size: 0.9rem; outline: none; }
+        input[type="text"] { flex: 1; background: transparent; border: none; padding: 8px 0; color: var(--text-heading); font-size: 0.9rem; outline: none; width: 100%; }
         input[type="text"]::placeholder { color: var(--text-muted); }
-        .send-btn { background: var(--accent); color: #000; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; width: 28px; height: 28px; transition: transform 0.1s ease; }
+        .send-btn { background: var(--accent); color: #000; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; width: 28px; height: 28px; transition: transform 0.1s ease; flex-shrink: 0; }
         .send-btn:active { transform: scale(0.9); }
         .send-btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+
+        /* Mobile Responsive Overrides */
+        @media (max-width: 768px) {
+            .mobile-header { display: flex; }
+            .sidebar { position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%); width: 260px; box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-overlay { display: block; pointer-events: none; }
+            .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+            .chat-messages { padding: 20px 16px; gap: 24px; }
+            .chat-input-area { padding: 0 16px 16px 16px; }
+            .input-wrapper { padding: 6px 12px 6px 16px; }
+            .message { font-size: 0.85rem; }
+            .code-container pre { padding: 12px; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
+    <div class="mobile-header">
+        <button class="icon-btn" onclick="toggleSidebar()">
+            <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <span class="logo-text">Lora AI</span>
+        <button class="icon-btn" onclick="clearActiveChat()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+    </div>
+
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <span class="logo-text">Lora AI</span>
             <button class="new-session-btn" onclick="clearActiveChat()">
@@ -143,7 +178,7 @@
         
         <div class="chat-input-area">
             <div class="input-wrapper">
-                <input type="text" id="userInput" placeholder="Ask Lora..." onkeydown="if(event.key === 'Enter') dispatchChatMessage()" autofocus>
+                <input type="text" id="userInput" placeholder="Ask Lora..." onkeydown="if(event.key === 'Enter') dispatchChatMessage()" autofocus autocomplete="off">
                 <button class="send-btn" onclick="dispatchChatMessage()">
                     <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 </button>
@@ -156,9 +191,21 @@
         
         let activeModelTier = "pro";
         let activeSystemMode = "assistant";
-        
-        // Stateful array containing cumulative chat objects
         let chatHistory = [];
+
+        // Mobile Sidebar Toggle Logic
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        // Close sidebar automatically on mobile when a tab/action is clicked
+        function autoCloseSidebarMobile() {
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('active');
+                document.querySelector('.sidebar-overlay').classList.remove('active');
+            }
+        }
 
         function switchModelTier(tier) {
             activeModelTier = tier;
@@ -166,20 +213,26 @@
             
             const input = document.getElementById("userInput");
             input.placeholder = "Ask Lora...";
-            input.focus();
+            
+            autoCloseSidebarMobile();
+            // Only auto-focus on desktop so mobile keyboards don't randomly pop up
+            if(window.innerWidth > 768) input.focus(); 
         }
 
         function switchSystemMode() {
             activeSystemMode = document.getElementById("systemModeSelector").value;
+            autoCloseSidebarMobile();
         }
 
         function clearActiveChat() {
             document.getElementById("chatBox").innerHTML = '<div class="message lora">Session context flushed.</div>';
+            autoCloseSidebarMobile();
         }
 
         function deleteChatHistory() {
-            chatHistory = []; // Completely wipe session arrays
+            chatHistory = []; 
             document.getElementById("chatBox").innerHTML = '<div class="message lora" style="color: var(--text-muted)">Conversation history deleted.</div>';
+            autoCloseSidebarMobile();
         }
 
         function toggleThinking(headerElement) {
@@ -205,7 +258,6 @@
                     </div>
                     <div class="thinking-body"></div>
                 `;
-                // Safely insert thinking text as text node
                 thinkDiv.querySelector(".thinking-body").innerText = thinkingText;
                 targetElement.appendChild(thinkDiv);
             }
@@ -218,9 +270,7 @@
             while ((match = codeBlockRegex.exec(remainingText)) !== null) {
                 if (match.index > lastIndex) {
                     const txtSpan = document.createElement("span");
-                    // Use textContent for text outside code blocks to prevent layout breakages
                     txtSpan.textContent = remainingText.substring(lastIndex, match.index);
-                    // Replace line breaks with real breaks for rendering layout
                     txtSpan.innerHTML = txtSpan.innerHTML.replace(/\n/g, "<br>");
                     targetElement.appendChild(txtSpan);
                 }
@@ -236,7 +286,6 @@
                     </div>
                     <pre><code></code></pre>
                 `;
-                // Safe text assignment ensures HTML strings appear as plain code text
                 container.querySelector("code").textContent = codeText;
                 targetElement.appendChild(container);
                 lastIndex = codeBlockRegex.lastIndex;
@@ -263,14 +312,15 @@
             chatBox.appendChild(userDiv);
             input.value = "";
             
-            // Setup AI Placeholder 
+            // Unfocus input on mobile after sending to hide keyboard
+            if(window.innerWidth <= 768) input.blur();
+
             const loraDiv = document.createElement("div");
             loraDiv.className = "message lora";
             loraDiv.innerHTML = '<div class="thinking-dots"><span></span><span></span><span></span></div>';
             chatBox.appendChild(loraDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // Track state history mapping
             chatHistory.push({ role: "user", content: query });
 
             try {
@@ -293,7 +343,7 @@
                     throw new Error(errData.detail || "Execution pipeline severed.");
                 }
                 
-                loraDiv.innerHTML = ""; // Clean loader animations
+                loraDiv.innerHTML = ""; 
                 
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder("utf-8");
@@ -307,7 +357,6 @@
                     streamBuffer += decoder.decode(value, { stream: true });
                     const lines = streamBuffer.split("\n");
                     
-                    // Retain unresolved line structural splits in memory buffer
                     streamBuffer = lines.pop();
                     
                     for (const line of lines) {
@@ -320,7 +369,6 @@
                                 accumulatedTokens += parsed.response;
                             }
                         } catch (e) {
-                            // Raw parsing text injection fallback structure
                             accumulatedTokens += trimmed;
                         }
                     }
@@ -329,7 +377,6 @@
                     chatBox.scrollTop = chatBox.scrollHeight;
                 }
 
-                // Process leftover data in the buffer after stream terminates
                 if (streamBuffer.trim()) {
                     try {
                         const parsed = JSON.parse(streamBuffer.trim());
@@ -340,7 +387,6 @@
                     parseMarkdownAndRender(accumulatedTokens, loraDiv);
                 }
 
-                // Push compiled string data block into history tracking state engine
                 chatHistory.push({ role: "assistant", content: accumulatedTokens });
                 
             } catch (err) {
