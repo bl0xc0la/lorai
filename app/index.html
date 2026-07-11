@@ -27,24 +27,26 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Geist Mono", monospace; }
         
-        /* Use dvh to fix iOS Safari keyboard/address bar issues */
         body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100dvh; overflow: hidden; -webkit-font-smoothing: antialiased; }
 
-        /* Minimal Sidebar */
-        .sidebar { width: 240px; background: var(--bg-sidebar); display: flex; flex-direction: column; padding: 24px 16px; border-right: 1px solid var(--border-color); z-index: 100; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; padding: 0 4px; }
-        .logo-text { font-size: 0.95rem; font-weight: 600; color: var(--text-heading); letter-spacing: -0.3px; }
+        /* Minimal Sidebar with collapsing capability */
+        .sidebar { width: 240px; background: var(--bg-sidebar); display: flex; flex-direction: column; padding: 24px 16px; border-right: 1px solid var(--border-color); z-index: 100; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar.collapsed { width: 0; padding-left: 0; padding-right: 0; border-right: none; overflow: hidden; pointer-events: none; }
+        .sidebar.collapsed * { opacity: 0; pointer-events: none; }
         
-        .new-session-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; }
+        .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; padding: 0 4px; width: 100%; }
+        .logo-text { font-size: 0.95rem; font-weight: 600; color: var(--text-heading); letter-spacing: -0.3px; white-space: nowrap; }
+        
+        .new-session-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; white-space: nowrap; }
         .new-session-btn:hover { background: var(--btn-secondary); color: var(--text-heading); }
         
-        .section-title { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); margin: 24px 0 8px 4px; font-weight: 700; letter-spacing: 1px; }
+        .section-title { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); margin: 24px 0 8px 4px; font-weight: 700; letter-spacing: 1px; white-space: nowrap; }
         
         .model-switcher-tabs { display: flex; flex-direction: column; gap: 4px; }
-        .tab-btn { width: 100%; text-align: left; padding: 10px 12px; border-radius: 8px; border: none; font-size: 0.8rem; cursor: pointer; background: transparent; color: var(--text-main); display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; }
+        .tab-btn { width: 100%; text-align: left; padding: 10px 12px; border-radius: 8px; border: none; font-size: 0.8rem; cursor: pointer; background: transparent; color: var(--text-main); display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; white-space: nowrap; }
         .tab-btn:hover { background: rgba(255,255,255,0.02); }
         .tab-btn.active { background: var(--btn-secondary); color: var(--text-heading); font-weight: 500; }
-        .tab-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+        .tab-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; flex-shrink: 0; }
 
         .selector-wrapper { position: relative; width: 100%; }
         .selector-element { width: 100%; background: transparent; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px; cursor: pointer; outline: none; font-size: 0.8rem; appearance: none; -webkit-appearance: none; transition: border-color 0.2s ease; }
@@ -52,20 +54,24 @@
         .selector-wrapper svg { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; fill: none; stroke: var(--text-muted); stroke-width: 1.5; pointer-events: none; }
 
         .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
-        .delete-btn { width: 100%; text-align: left; padding: 10px 12px; border-radius: 8px; border: 1px solid transparent; font-size: 0.8rem; cursor: pointer; background: transparent; color: var(--text-muted); display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; }
+        .delete-btn { width: 100%; text-align: left; padding: 10px 12px; border-radius: 8px; border: 1px solid transparent; font-size: 0.8rem; cursor: pointer; background: transparent; color: var(--text-muted); display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; white-space: nowrap; }
         .delete-btn:hover { background: var(--btn-danger); color: var(--text-danger); border-color: rgba(255, 69, 58, 0.2); }
-        .delete-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+        .delete-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; flex-shrink: 0; }
 
-        /* Mobile Specific Elements (Hidden on Desktop) */
+        /* Desktop Floating Menu Button (Appears when sidebar is hidden) */
+        .desktop-nav-trigger { display: flex; position: fixed; top: 20px; left: 20px; z-index: 80; }
+
+        /* Mobile Specific Elements */
         .mobile-header { display: none; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-sidebar); border-bottom: 1px solid var(--border-color); z-index: 90; }
         .mobile-header .logo-text { font-size: 0.9rem; }
-        .icon-btn { background: transparent; border: none; color: var(--text-main); display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; }
+        
+        .icon-btn { background: transparent; border: none; color: var(--text-main); display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
         .icon-btn:hover { background: var(--btn-secondary); color: var(--text-heading); }
         .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
         .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); z-index: 95; opacity: 0; transition: opacity 0.3s ease; }
 
         /* Clean Chat Canvas */
-        .main-content { flex: 1; display: flex; flex-direction: column; background: var(--bg-main); width: 100%; }
+        .main-content { flex: 1; display: flex; flex-direction: column; background: var(--bg-main); width: 100%; position: relative; }
         .chat-messages { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 36px; max-width: 760px; width: 100%; margin: 0 auto; scroll-behavior: smooth; }
         
         .message { max-width: 100%; line-height: 1.7; font-size: 0.9rem; color: var(--text-main); display: flex; flex-direction: column; animation: fadeIn 0.2s ease-out forwards; word-wrap: break-word; }
@@ -109,9 +115,12 @@
 
         /* Mobile Responsive Overrides */
         @media (max-width: 768px) {
+            .desktop-nav-trigger { display: none !important; }
             .mobile-header { display: flex; }
-            .sidebar { position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%); width: 260px; box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+            .sidebar { position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%); width: 260px; box-shadow: 4px 0 24px rgba(0,0,0,0.5); padding: 24px 16px !important; }
             .sidebar.active { transform: translateX(0); }
+            .sidebar.collapsed { width: 260px; transform: translateX(-100%); }
+            .sidebar.collapsed * { opacity: 1; pointer-events: auto; }
             .sidebar-overlay { display: block; pointer-events: none; }
             .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
             .chat-messages { padding: 20px 16px; gap: 24px; }
@@ -124,8 +133,14 @@
 </head>
 <body>
 
+    <div class="desktop-nav-trigger">
+        <button class="icon-btn" onclick="toggleDesktopSidebar()" title="Show Sidebar">
+            <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+    </div>
+
     <div class="mobile-header">
-        <button class="icon-btn" onclick="toggleSidebar()">
+        <button class="icon-btn" onclick="toggleMobileSidebar()">
             <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
         </button>
         <span class="logo-text">Lora AI</span>
@@ -134,15 +149,20 @@
         </button>
     </div>
 
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
 
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <span class="logo-text">Lora AI</span>
-            <button class="new-session-btn" onclick="clearActiveChat()">
-                <svg viewBox="0 0 24 24" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                New
-            </button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button class="icon-btn desktop-only" onclick="toggleDesktopSidebar()" title="Hide Sidebar" style="width:28px; height:28px;">
+                    <svg viewBox="0 0 24 24" style="width:14px; height:14px;"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <button class="new-session-btn" onclick="clearActiveChat()">
+                    <svg viewBox="0 0 24 24" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    New
+                </button>
+            </div>
         </div>
 
         <div class="section-title">Model Core</div>
@@ -193,13 +213,18 @@
         let activeSystemMode = "assistant";
         let chatHistory = [];
 
-        // Mobile Sidebar Toggle Logic
-        function toggleSidebar() {
+        // Desktop Sidebar Toggle
+        function toggleDesktopSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+
+        // Mobile Sidebar Toggle
+        function toggleMobileSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
             document.querySelector('.sidebar-overlay').classList.toggle('active');
         }
 
-        // Close sidebar automatically on mobile when a tab/action is clicked
+        // Auto-close open menu on mobile after selections
         function autoCloseSidebarMobile() {
             if (window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('active');
@@ -215,7 +240,6 @@
             input.placeholder = "Ask Lora...";
             
             autoCloseSidebarMobile();
-            // Only auto-focus on desktop so mobile keyboards don't randomly pop up
             if(window.innerWidth > 768) input.focus(); 
         }
 
@@ -243,7 +267,6 @@
             targetElement.innerHTML = "";
             let remainingText = text || "";
             
-            // Extract Thinking Blocks
             const thinkMatch = text.match(/<thinking>([\s\S]*?)<\/thinking>/);
             if (thinkMatch) {
                 const thinkingText = thinkMatch[1];
@@ -262,7 +285,6 @@
                 targetElement.appendChild(thinkDiv);
             }
 
-            // Extract Code Blocks
             const codeBlockRegex = /```([a-zA-Z0-9+#-]+)?\n([\s\S]*?)```/g;
             let lastIndex = 0;
             let match;
@@ -305,14 +327,12 @@
             const query = input.value.trim();
             if (!query) return;
 
-            // Render User Bubble
             const userDiv = document.createElement("div");
             userDiv.className = "message user";
             userDiv.innerText = query;
             chatBox.appendChild(userDiv);
             input.value = "";
             
-            // Unfocus input on mobile after sending to hide keyboard
             if(window.innerWidth <= 768) input.blur();
 
             const loraDiv = document.createElement("div");
