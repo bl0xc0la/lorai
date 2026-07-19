@@ -171,6 +171,10 @@
                 <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
                 Lora Pro
             </button>
+            <button id="tierMax" class="tab-btn" onclick="switchModelTier('max')">
+                <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                Lora Max
+            </button>
         </div>
 
         <div class="section-title">Mode</div>
@@ -235,6 +239,7 @@
         function switchModelTier(tier) {
             activeModelTier = tier;
             document.getElementById("tierPro").classList.toggle("active", tier === "pro");
+            document.getElementById("tierMax").classList.toggle("active", tier === "max");
             
             const input = document.getElementById("userInput");
             input.placeholder = "Ask Lora...";
